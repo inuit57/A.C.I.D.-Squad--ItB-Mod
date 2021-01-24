@@ -1,0 +1,11 @@
+<Others>
+* Achievement 
+* Squad Description 
+
+<Weapon>
+* Laser Effect.
+
+<Image>
+* Pawns Image 
+* Squad Icon
+
