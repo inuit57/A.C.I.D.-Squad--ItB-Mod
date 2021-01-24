@@ -613,27 +613,27 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 	local direction = GetDirection(p2 - p1)
 	local target = GetProjectileEnd(p1,p2)  
 	
-	local damage = SpaceDamage(target,  self.Damage)
+	local damage = SpaceDamage(target,  0) --self.Damage)
 	damage.iAcid = self.Acid 
 	ret:AddProjectile(damage, "effects/shot_shrapnel")
 --	ret.path = Board:GetSimplePath(p1, target)
 	
-	if (self.acid_repair) and (Board:GetPawn(p1):IsAcid() )then
+	if Board:GetPawn(p1):IsAcid() then
+		--damage.iDamage = self.Damage *2 
+	else
 		local selfDamage = SpaceDamage( p1  ,0) 
-		selfDamage.iAcid =  EFFECT_REMOVE 
+		selfDamage.iAcid =  1 
 		ret:AddDamage(selfDamage)
 	end
 
 
+
 	for dir = 0, 3 do
-		damage = SpaceDamage(target + DIR_VECTORS[dir], 1, dir)
+		damage = SpaceDamage(target + DIR_VECTORS[dir], self.Damage , dir)
 		damage.iAcid = self.Acid 
+
 		if Board:GetPawn(p1):IsAcid() then
 			damage.iDamage = self.Damage *2 
-		else
-			local selfDamage = SpaceDamage( p1  ,0) 
-			selfDamage.iAcid =  1 
-			ret:AddDamage(selfDamage)
 		end
 
 		damage.sAnimation = "airpush_"..dir
@@ -642,6 +642,12 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		end
 	end
 	
+	if (self.acid_repair) and (Board:GetPawn(p1):IsAcid()) then
+		local selfDamage = SpaceDamage( p1  ,0) 
+		selfDamage.iAcid =  EFFECT_REMOVE 
+		ret:AddDamage(selfDamage)
+	end
+
 	return ret
 end
 
@@ -658,7 +664,8 @@ narD_Shrapnel_B = narD_Shrapnel:new{
 } 
 
 narD_Shrapnel_AB = narD_Shrapnel:new{
-	Acid = 1,
+	--Acid = 1,
+	acid_repair = false,
 	Damage = 2,
 	--VatPawn = "narD_ACIDVat_AB", 
 } 
