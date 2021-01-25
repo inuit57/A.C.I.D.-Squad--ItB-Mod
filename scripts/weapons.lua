@@ -277,11 +277,12 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 				
 	end
 	
-	-- just only pulling
+	
+	
 	for i = 1, #targets do
 		local curr = targets[i]
 		local damage = SpaceDamage(curr, 0, (dir-2)%4)
-		--damage.iDamage = temp_dmg
+		damage.iDamage = temp_dmg
 
 		if Board:IsPawnSpace(curr) then
 			ret:AddDelay(0.1)
@@ -290,26 +291,6 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		-- if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
 		-- 	damage.iDamage = 0 
 		-- end
-		
-		ret:AddDamage(damage)
-
-		-- temp_dmg = temp_dmg - 1 
-		-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
-	end
-	
-	--do damage.
-	for i = 1, #targets do
-		local curr = targets[i]
-		local damage = SpaceDamage(curr, 0 )
-		damage.iDamage = temp_dmg
-
-		if Board:IsPawnSpace(curr) then
-			ret:AddDelay(0.1)
-		end
-
-		if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
-			damage.iDamage = 0 
-		end
 		
 		ret:AddDamage(damage)
 
@@ -655,7 +636,7 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 	if (self.BuildingImmune) and (Board:IsBuilding(p2)) then 
 		damage.iDamage = 0
 	end
-	
+
 	ret:AddProjectile(damage, "effects/shot_shrapnel")
 
 
