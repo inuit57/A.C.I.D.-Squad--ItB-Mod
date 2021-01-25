@@ -271,19 +271,10 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		temp_dmg = temp_dmg*2 
 		min_dmg = min_dmg*2 
 
-		if self.acid_repair then 
-			local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
-			selfDamage.iAcid =  EFFECT_REMOVE 
-			ret:AddDamage(selfDamage)
-		end
-
 		ret:AddProjectile(dam,"effects/laser_acid")
 	else
 		ret:AddProjectile(dam,"effects/m_laser_acid") -- "effects/laser_acid"
 				
-		local selfDamage = SpaceDamage( p1  ,0) 
-		selfDamage.iAcid =  1 
-		ret:AddDamage(selfDamage)
 	end
 	
 	for i = 1, #targets do
@@ -305,6 +296,16 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		if temp_dmg < min_dmg then temp_dmg = min_dmg end
 	end
 	
+	if acid_Bonus and self.acid_repair then 
+		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
+		selfDamage.iAcid =  EFFECT_REMOVE 
+		ret:AddDamage(selfDamage)
+	else
+		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
+		selfDamage.iAcid =  1 
+		ret:AddDamage(selfDamage)
+	end
+
 	return ret
 end
 
