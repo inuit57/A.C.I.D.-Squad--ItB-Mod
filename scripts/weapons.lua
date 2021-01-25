@@ -633,7 +633,7 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		ret:AddDamage(selfDamage)
 	end
 
-	if (self.BuildingImmune) and (Board:IsBuilding(p2)) then 
+	if (self.BuildingImmune) and (Board:IsBuilding(target)) then 
 		damage.iDamage = 0
 	end
 
