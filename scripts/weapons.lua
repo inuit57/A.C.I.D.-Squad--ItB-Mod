@@ -200,7 +200,7 @@ narD_acid_Charge_AB = narD_acid_Charge:new{
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls (and damages) all units in a line.",
+	Description = "Pulls and damages all units in a line.",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
 	Explosion = "",
@@ -277,9 +277,30 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 				
 	end
 	
+	-- just only pulling
 	for i = 1, #targets do
 		local curr = targets[i]
 		local damage = SpaceDamage(curr, 0, (dir-2)%4)
+		--damage.iDamage = temp_dmg
+
+		if Board:IsPawnSpace(curr) then
+			ret:AddDelay(0.1)
+		end
+
+		-- if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
+		-- 	damage.iDamage = 0 
+		-- end
+		
+		ret:AddDamage(damage)
+
+		-- temp_dmg = temp_dmg - 1 
+		-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
+	end
+	
+	--do damage.
+	for i = 1, #targets do
+		local curr = targets[i]
+		local damage = SpaceDamage(curr, 0 )
 		damage.iDamage = temp_dmg
 
 		if Board:IsPawnSpace(curr) then
@@ -295,7 +316,8 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		temp_dmg = temp_dmg - 1 
 		if temp_dmg < min_dmg then temp_dmg = min_dmg end
 	end
-	
+
+
 	if acid_Bonus and self.acid_repair then 
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
@@ -630,11 +652,13 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		ret:AddDamage(selfDamage)
 	end
 
-	ret:AddProjectile(damage, "effects/shot_shrapnel")
-
-	if (self.BuildingImmune) and Board:IsBuilding(p2) then 
+	if (self.BuildingImmune) and (Board:IsBuilding(p2)) then 
 		damage.iDamage = 0
 	end
+	
+	ret:AddProjectile(damage, "effects/shot_shrapnel")
+
+
 --	ret.path = Board:GetSimplePath(p1, target)
 	
 
