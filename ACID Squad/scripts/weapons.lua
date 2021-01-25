@@ -2,13 +2,13 @@ local wt2 = {
 	narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
 	narD_acid_Charge_Upgrade2 = "+1 Damage", 
 
-	narD_Shrapnel_Upgrade1 =  "- selfRepair ", --"+ A.C.I.D.", 
+	narD_Shrapnel_Upgrade1 =  "Building Immune",--"- selfRepair ", --"+ A.C.I.D.", 
 	narD_Shrapnel_Upgrade2 = "+1 Damage", 
 
-	narD_VATthrow_Upgrade1 = "- selfRepair ", -- "+ Timer", 
+	narD_VATthrow_Upgrade1 =  "+ Timer",  --"- selfRepair ", --
 	narD_VATthrow_Upgrade2 = "+1 Damage",
 
-	narD_PullBeam_Upgrade1 = "- selfRepair",
+	narD_PullBeam_Upgrade1 = "- ACID repair",
 	narD_PullBeam_Upgrade2 = "+1 Damage",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
@@ -200,7 +200,7 @@ narD_acid_Charge_AB = narD_acid_Charge:new{
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls (and damages) all units in a line.",
+	Description = "Pulls and damages all units in a line.",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
 	Explosion = "",
@@ -213,6 +213,7 @@ narD_PullBeam = LaserDefault:new{
 	Damage = 1,
 	MinDamage = 0,
 	FriendlyDamage = true,
+	SelfDamage = 0,
 	
 	acid_repair = true,
 
@@ -270,20 +271,13 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		temp_dmg = temp_dmg*2 
 		min_dmg = min_dmg*2 
 
-		if self.acid_repair then 
-			local selfDamage = SpaceDamage( p1  ,0) 
-			selfDamage.iAcid =  EFFECT_REMOVE 
-			ret:AddDamage(selfDamage)
-		end
-
 		ret:AddProjectile(dam,"effects/laser_acid")
 	else
 		ret:AddProjectile(dam,"effects/m_laser_acid") -- "effects/laser_acid"
 				
-		local selfDamage = SpaceDamage( p1  ,0) 
-		selfDamage.iAcid =  1 
-		ret:AddDamage(selfDamage)
 	end
+	
+	
 	
 	for i = 1, #targets do
 		local curr = targets[i]
@@ -294,16 +288,27 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 			ret:AddDelay(0.1)
 		end
 
-		if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
-			damage.iDamage = 0 
-		end
+		-- if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
+		-- 	damage.iDamage = 0 
+		-- end
 		
 		ret:AddDamage(damage)
 
 		temp_dmg = temp_dmg - 1 
 		if temp_dmg < min_dmg then temp_dmg = min_dmg end
 	end
-	
+
+
+	if acid_Bonus and self.acid_repair then 
+		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
+		selfDamage.iAcid =  EFFECT_REMOVE 
+		ret:AddDamage(selfDamage)
+	else
+		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
+		selfDamage.iAcid =  1 
+		ret:AddDamage(selfDamage)
+	end
+
 	return ret
 end
 
@@ -311,6 +316,7 @@ narD_PullBeam_A = narD_PullBeam:new{ --
 	UpgradeDescription = "Increases Damage by 1.",--"Deals no damage to allies.",
 	--FriendlyDamage = false,
 	acid_repair = false, 
+	--SelfDamage = -1,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
@@ -320,19 +326,21 @@ narD_PullBeam_B = narD_PullBeam:new{ --
 
 narD_PullBeam_AB = narD_PullBeam:new{ 
 	--FriendlyDamage = false,
+	--SelfDamage = -1,
+	acid_repair = false, 
 	Damage = 3, 
 }
 --
 
 narD_ACIDVat = Pawn:new{
-	Name = "Little Acid Vat",
+	Name = "A.C.I.D. Vat",
 	Health = 2,--1,
 	Neutral = true,
 	MoveSpeed = 0,
 	Image =  "narD_acdidVat" , --"barrel1",
-	DefaultTeam = TEAM_NONE, -- TEAM_PLAYER,
+	DefaultTeam = TEAM_ENEMY, --TEAM_NONE, -- TEAM_PLAYER,
 	IsPortrait = false,
-	--Minor = true,
+	Minor = true,
 	--Mission = true,
 	Tooltip = "Acid_Death_Tooltip",
 	IsDeathEffect = true,
@@ -344,19 +352,19 @@ function narD_ACIDVat:GetDeathEffect(point)
 	
 	local dam = SpaceDamage(point)
 
-	--dam.iTerrain = TERRAIN_WATER
+	dam.iTerrain = TERRAIN_WATER
 	dam.iAcid = 1
 	dam.sAnimation = "splash"--hack
 	dam.sSound = "/props/acid_vat_break"
 	ret:AddDamage(dam)
 
-	for i = DIR_START, DIR_END do
-		dam = SpaceDamage(point + DIR_VECTORS[i])
-		dam.iAcid = 1
-		dam.sAnimation = "splash"--hack
-		dam.sSound = "/props/acid_vat_break"
-		ret:AddDamage(dam)
-	end
+	-- for i = DIR_START, DIR_END do
+	-- 	dam = SpaceDamage(point + DIR_VECTORS[i])
+	-- 	dam.iAcid = 1
+	-- 	dam.sAnimation = "splash"--hack
+	-- 	dam.sSound = "/props/acid_vat_break"
+	-- 	ret:AddDamage(dam)
+	-- end
 
 	return ret
 end
@@ -559,9 +567,9 @@ end
 
 narD_VATthrow_A = narD_VATthrow:new{
 	UpgradeDescription = "Add Time bomb to Vat.", --"Increases Vat's HP by two.",
-	--VatFire = 1, 
+	VatFire = 1, 
 
-	acid_repair = false,
+	--acid_repair = false,
 	--VatPawn = "narD_ACIDVat_AB",
 } 
 
@@ -597,8 +605,9 @@ narD_Shrapnel = TankDefault:new	{
 	ImpactSound = "/impact/generic/explosion",
 	ZoneTargeting = ZONE_DIR,
 
+	BuildingImmune = false,
 	Upgrades = 2,
-	UpgradeCost = {1, 3},
+	UpgradeCost = {2, 3},
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -613,27 +622,39 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 	local direction = GetDirection(p2 - p1)
 	local target = GetProjectileEnd(p1,p2)  
 	
-	local damage = SpaceDamage(target,  self.Damage)
+	local damage = SpaceDamage(target, self.Damage)
 	damage.iAcid = self.Acid 
-	ret:AddProjectile(damage, "effects/shot_shrapnel")
---	ret.path = Board:GetSimplePath(p1, target)
-	
-	if (self.acid_repair) and (Board:GetPawn(p1):IsAcid() )then
+
+	if Board:GetPawn(p1):IsAcid() then
+		damage.iDamage = self.Damage *2 
+	else
 		local selfDamage = SpaceDamage( p1  ,0) 
-		selfDamage.iAcid =  EFFECT_REMOVE 
+		selfDamage.iAcid =  1 
 		ret:AddDamage(selfDamage)
 	end
 
+	if (self.BuildingImmune) and (Board:IsBuilding(p2)) then 
+		damage.iDamage = 0
+	end
+
+	ret:AddProjectile(damage, "effects/shot_shrapnel")
+
+
+--	ret.path = Board:GetSimplePath(p1, target)
+	
+
+
 
 	for dir = 0, 3 do
-		damage = SpaceDamage(target + DIR_VECTORS[dir], 1, dir)
+		damage = SpaceDamage(target + DIR_VECTORS[dir], self.Damage , dir)
 		damage.iAcid = self.Acid 
+
 		if Board:GetPawn(p1):IsAcid() then
 			damage.iDamage = self.Damage *2 
-		else
-			local selfDamage = SpaceDamage( p1  ,0) 
-			selfDamage.iAcid =  1 
-			ret:AddDamage(selfDamage)
+		end
+
+		if (self.BuildingImmune) and (Board:IsBuilding(target + DIR_VECTORS[dir])) then 
+			damage.iDamage = 0
 		end
 
 		damage.sAnimation = "airpush_"..dir
@@ -642,13 +663,20 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		end
 	end
 	
+	if (self.acid_repair) and (Board:GetPawn(p1):IsAcid()) then
+		local selfDamage = SpaceDamage( p1  ,0) 
+		selfDamage.iAcid =  EFFECT_REMOVE 
+		ret:AddDamage(selfDamage)
+	end
+
 	return ret
 end
 
 narD_Shrapnel_A = narD_Shrapnel:new{
-	UpgradeDescription = "+ A.C.I.D.", --"Increases Vat's HP by two.",
+	UpgradeDescription = "+ Building Immune", --"Increases Vat's HP by two.",
 	--Acid = 1, 
-	acid_repair = false,
+	--acid_repair = false,
+	BuildingImmune = true,
 	--VatPawn = "narD_ACIDVat_AB",
 } 
 
@@ -658,7 +686,9 @@ narD_Shrapnel_B = narD_Shrapnel:new{
 } 
 
 narD_Shrapnel_AB = narD_Shrapnel:new{
-	Acid = 1,
+	--Acid = 1,
+	--acid_repair = false,
+	BuildingImmune = true,
 	Damage = 2,
 	--VatPawn = "narD_ACIDVat_AB", 
 } 
