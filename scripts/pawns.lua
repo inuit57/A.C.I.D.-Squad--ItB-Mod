@@ -7,6 +7,7 @@ narD_LaserMech = Pawn:new {
 	Health = 3,
 	MoveSpeed = 3,
 	Armor = true,
+	Flying = true,
 	Image = "MechLaser", 
 	ImageOffset = 7,
 	SkillList = { "narD_PullBeam"  } ,
