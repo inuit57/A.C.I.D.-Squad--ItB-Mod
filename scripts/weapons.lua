@@ -8,7 +8,7 @@ local wt2 = {
 	narD_VATthrow_Upgrade1 =  "+ Timer",  --"- selfRepair ", --
 	narD_VATthrow_Upgrade2 = "+1 Damage",
 
-	narD_PullBeam_Upgrade1 = "- selfRepair",
+	narD_PullBeam_Upgrade1 = "- 1 self Damage",
 	narD_PullBeam_Upgrade2 = "+1 Damage",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
@@ -213,6 +213,7 @@ narD_PullBeam = LaserDefault:new{
 	Damage = 1,
 	MinDamage = 0,
 	FriendlyDamage = true,
+	SelfDamage = 0,
 	
 	acid_repair = true,
 
@@ -271,7 +272,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		min_dmg = min_dmg*2 
 
 		if self.acid_repair then 
-			local selfDamage = SpaceDamage( p1  ,0) 
+			local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 			selfDamage.iAcid =  EFFECT_REMOVE 
 			ret:AddDamage(selfDamage)
 		end
@@ -310,7 +311,8 @@ end
 narD_PullBeam_A = narD_PullBeam:new{ --
 	UpgradeDescription = "Increases Damage by 1.",--"Deals no damage to allies.",
 	--FriendlyDamage = false,
-	acid_repair = false, 
+	--acid_repair = false, 
+	SelfDamage = -1,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
@@ -320,6 +322,7 @@ narD_PullBeam_B = narD_PullBeam:new{ --
 
 narD_PullBeam_AB = narD_PullBeam:new{ 
 	--FriendlyDamage = false,
+	SelfDamage = -1,
 	Damage = 3, 
 }
 --
