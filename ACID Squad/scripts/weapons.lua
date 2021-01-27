@@ -591,10 +591,10 @@ narD_Shrapnel = TankDefault:new	{
 	Name = "A.C.I.D. Shrapnel",
 	Description = "needs description ", 
 
-	Class = "Brute",
+	Class = "Brute", 
 	Damage = 0,
-	Icon = "weapons/brute_shrapnel.png",
-	Explosion = "",
+	Icon = "weapons/enemy_firefly2.png", -- need change?.
+	Explosion = "ExploFirefly2",
 	Sound = "/general/combat/explode_small",
 	Damage = 1,
 	Push = 1,
@@ -633,11 +633,11 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		ret:AddDamage(selfDamage)
 	end
 
-	if (self.BuildingImmune) and (Board:IsBuilding(p2)) then 
+	if (self.BuildingImmune) and (Board:IsBuilding(target)) then 
 		damage.iDamage = 0
 	end
 
-	ret:AddProjectile(damage, "effects/shot_shrapnel")
+	ret:AddProjectile(damage, "effects/shot_firefly")
 
 
 --	ret.path = Board:GetSimplePath(p1, target)

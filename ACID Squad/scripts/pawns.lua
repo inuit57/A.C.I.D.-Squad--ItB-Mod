@@ -7,6 +7,7 @@ narD_LaserMech = Pawn:new {
 	Health = 3,
 	MoveSpeed = 3,
 	Armor = true,
+	--Flying = true,
 	Image = "MechLaser", 
 	ImageOffset = 7,
 	SkillList = { "narD_PullBeam"  } ,
@@ -18,11 +19,12 @@ narD_LaserMech = Pawn:new {
 
 AddPawn("narD_LaserMech")
 
+
 narD_CorruptedMech = Pawn:new  {
 	Name = "I.nsect Mech",
-	Class = "Brute", --Brute
+	Class =  "Brute", 
 	Health = 3,
-	Image = "MechBeetle", --"MechCharge", 
+	Image = "InsectMech", --"MechCharge", 
 	ImageOffset = 7,
 	MoveSpeed = 3,
 	SkillList = { "narD_Shrapnel" }, -- "narD_acid_Charge"  }, 
