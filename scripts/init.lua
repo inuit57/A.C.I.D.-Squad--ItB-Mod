@@ -1,4 +1,35 @@
 local function init(self)
+	require(self.scriptPath.."FURL")(self, {
+		-- {
+		-- 	Type = "color",
+		-- 	Name = "FrostThrone",
+		-- 	PawnLocation = self.scriptPath.."pawns",
+			
+		-- 	PlateHighlight =	{242, 132, 34},	--lights
+		-- 	PlateLight =		{116, 125, 127},	--main highlight
+		-- 	PlateMid =			{62, 71, 73},	--main light
+		-- 	PlateDark =			{29, 38, 40},	--main mid
+		-- 	PlateOutline =		{7, 12, 13},	--main dark
+		-- 	BodyHighlight =		{61, 69, 63},	--metal light
+		-- 	BodyColor =			{30, 35, 34},	--metal mid
+		-- 	PlateShadow =		{15, 17, 17},	--metal dark
+		-- },
+		{
+			Type = "mech",
+			Name = "InsectMech",
+			Filename = "mech_bug",
+			Path = "img/units", 
+			ResourcePath = "units/player",
+
+			Default =           {  PosX = -22, PosY = 4  },
+			Animated =          {  PosX = -20, PosY = 4 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
+			Broken =            {  PosX = -22, PosY = 4, },
+			Submerged =         { PosX = -22, PosY = 10 },
+			SubmergedBroken =   { PosX = -20, PosY = 10 },
+			Icon =              {},
+		},
+		
+	});
 
 	require(self.scriptPath.."pawns")
 	require(self.scriptPath.."weapons")
@@ -8,6 +39,8 @@ local function init(self)
 
 	-- add some effect? laser... or another things. 
 	
+	--modApi:appendAsset("img/units/Pilot_narD_CorruptedMech.png", self.resourcePath .."img/units/Pilot_narD_CorruptedMech.png")
+
 	modApi:appendAsset("img/weapons/vat_throw.png",self.resourcePath.."img/weapons/vat_throw.png")
 	modApi:appendAsset("img/weapons/acid_laser.png",self.resourcePath.."img/weapons/acid_laser.png")
 	modApi:appendAsset("img/weapons/acid_bomb_throw.png",self.resourcePath.."img/weapons/acid_bomb_throw.png")
