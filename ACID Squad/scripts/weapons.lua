@@ -104,7 +104,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	end
 	
 	
-	
+	--[[ 앞에서부터 끌어당기는 거. 
+	-- 문제점 : 맨 앞 놈이 데미지로 죽을 경우 뒤에 충돌피해 없이 그냥 다 땡겨와짐.
+	-- (툴팁에서 보여지는 거랑 달라보일 수가 있음)
 	for i = 1, #targets do
 		local curr = targets[i]
 		local damage = SpaceDamage(curr, 0, (dir-2)%4)
@@ -123,6 +125,37 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 
 		temp_dmg = temp_dmg - 1 
 		if temp_dmg < min_dmg then temp_dmg = min_dmg end
+	end
+]]
+
+	--맨 뒷놈부터 끌어오는 거. 충돌피해가 생기긴 한다. 
+	-- 문제점 : 맨 앞놈이 죽었을 경우. 두번째 놈만 앞으로 한칸 끌려온다. 막을 수 있을까? 
+	for i = 0, #targets-1  do
+		local curr = targets[#targets - i]
+		local damage = SpaceDamage(curr, 0, (dir-2)%4)
+		
+		if curr == p1 + DIR_VECTORS[dir] then   -- hard coding. :( 
+			damage.iDamage  = temp_dmg 
+		end
+		if (curr == p1 + (DIR_VECTORS[dir]*2)) and temp_dmg > 1  then
+			damage.iDamage = temp_dmg - 1
+		end 
+
+		--damage.iDamage = temp_dmg
+
+		if Board:IsPawnSpace(curr) then
+			ret:AddDelay(0.1)
+			damage.iAcid = self.ACID
+		end
+
+		if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
+			damage.iDamage = 0 
+		end
+		
+		ret:AddDamage(damage)
+
+		-- temp_dmg = temp_dmg - 1 
+		-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
 	end
 
 
