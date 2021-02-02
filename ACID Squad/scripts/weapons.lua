@@ -1,6 +1,7 @@
 local wt2 = {	
-	narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
-	narD_acid_Charge_Upgrade2 = "+1 Max Damage", 
+	-- not used
+	-- narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
+	-- narD_acid_Charge_Upgrade2 = "+1 Max Damage", 
 
 	narD_Shrapnel_Upgrade1 =  "+ self A.C.I.D", --"Building Immune", 
 	narD_Shrapnel_Upgrade2 =  "Building Immune",--"Ally Immune", 
@@ -45,7 +46,7 @@ narD_PullBeam = LaserDefault:new{
 	ACID = 0,
 
 	Upgrades = 2,
-	UpgradeCost = { 1, 2 },
+	UpgradeCost = { 2, 2 },
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -284,7 +285,7 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Acid_Damage = 1,
 	SideACID = 0, 
 	
-	UpgradeCost = {1, 2},
+	UpgradeCost = {2, 2},
 
 	TipImage = {
 		Unit = Point(2,4),
@@ -415,7 +416,7 @@ narD_Shrapnel = TankDefault:new	{
 
 	BuildingImmune = false,
 	Upgrades = 2,
-	UpgradeCost = {1, 2},
+	UpgradeCost = {2, 2},
 
 	TipImage = {
 		Unit = Point(2,3),
