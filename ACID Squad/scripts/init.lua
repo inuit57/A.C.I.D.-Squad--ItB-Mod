@@ -28,6 +28,21 @@ local function init(self)
 			SubmergedBroken =   { PosX = -20, PosY = 10 },
 			Icon =              {},
 		},
+
+		{
+			Type = "mech",
+			Name = "BallMech",
+			Filename = "boll",
+			Path = "img/units", 
+			ResourcePath = "units/player",
+
+			Default =           {  PosX = -18, PosY = -6  },
+			Animated =          {  PosX = -18, PosY = -6 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
+			Broken =            {  PosX = -20, PosY = -6, },
+			Submerged =         { PosX = -26, PosY = 4},
+			SubmergedBroken =   { PosX = -22, PosY = 4 },
+			Icon =              {},
+		},
 		
 	});
 

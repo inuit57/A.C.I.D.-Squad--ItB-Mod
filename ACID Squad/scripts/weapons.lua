@@ -3,13 +3,13 @@ local wt2 = {
 	-- narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
 	-- narD_acid_Charge_Upgrade2 = "+1 Max Damage", 
 
-	narD_Shrapnel_Upgrade1 =  "+ self A.C.I.D", --"Building Immune", 
-	narD_Shrapnel_Upgrade2 =  "Building Immune",--"Ally Immune", 
+	narD_Shrapnel_Upgrade1 =  "Building Immune", 
+	narD_Shrapnel_Upgrade2 =  "Ally Immune", 
 
-	narD_VATthrow_Upgrade1 =  "+ self A.C.I.D",--"+ Timer",  
+	narD_VATthrow_Upgrade1 =  "back A.C.I.D", --"+ self A.C.I.D",--"+ Timer",  
 	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", --"+1 Max Damage",
 
-	narD_PullBeam_Upgrade1 = "+ self A.C.I.D", --"Ally Immune",
+	narD_PullBeam_Upgrade1 = "back A.C.I.D", --"+ self A.C.I.D", --"Ally Immune",
 	narD_PullBeam_Upgrade2 = "+ A.C.I.D",-- "+1 Max Damage",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
@@ -42,6 +42,7 @@ narD_PullBeam = LaserDefault:new{
 	
 	Acid_Damage = 1, 
 	self_acid = false,
+	BackACID = false,
 
 	ACID = 0,
 
@@ -170,15 +171,21 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		ret:AddDamage(selfDamage)
 	end
 
+	if self.BackACID then
+		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+		backDamage.iAcid = 1
+		ret:AddDamage(backDamage) 
+	end
+
 	return ret
 end
 
 narD_PullBeam_A = narD_PullBeam:new{ --
 	UpgradeDescription = "Increases Damage by 1.",--"Deals no damage to allies.",
 	--FriendlyDamage = false,
-	self_acid = true, 
+	--self_acid = true, 
 	--FriendlyDamage = false, 
-	
+	BackACID = true,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
@@ -195,7 +202,8 @@ narD_PullBeam_AB = narD_PullBeam:new{
 	--Acid_Damage = 2,
 	-- Damage = 3, 
 	ACID = 1,
-	self_acid = true, 
+	BackACID = true,
+	-- self_acid = true, 
 	--FriendlyDamage = false, 
 }
 --
@@ -280,6 +288,7 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 
 	VatFire = 0,
 	VatPawn = "narD_ACIDVat", 
+	BackACID = false,
 
 
 	Acid_Damage = 1,
@@ -341,24 +350,27 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 	ret:AddBoardShake(0.15)
 
 
+	local temp_point = p2 + DIR_VECTORS[(dir+1)%4]
+	local damagepush = SpaceDamage(temp_point, 0, (dir+1)%4)
+
 	
-	--if sub_damage ~= 0 then  -- 일단, sub_damage를 0으로 놓자. 
-		local temp_point = p2 + DIR_VECTORS[(dir+1)%4]
-		local damagepush = SpaceDamage(temp_point, 0, (dir+1)%4)
+	damagepush.sAnimation = "airpush_"..((dir+1)%4)
+	damagepush.iAcid = self.SideACID
+	ret:AddDamage(damagepush) 
+	
+	
+	temp_point = p2 + DIR_VECTORS[(dir-1)%4]
+	damagepush = SpaceDamage(temp_point, 0, (dir-1)%4)
+	damagepush.iAcid = self.SideACID
 
-		
-		damagepush.sAnimation = "airpush_"..((dir+1)%4)
-		damagepush.iAcid = self.SideACID
-		ret:AddDamage(damagepush) 
-		
-		
-		temp_point = p2 + DIR_VECTORS[(dir-1)%4]
-		damagepush = SpaceDamage(temp_point, 0, (dir-1)%4)
-		damagepush.iAcid = self.SideACID
-
-		damagepush.sAnimation = "airpush_"..((dir-1)%4)
-		ret:AddDamage(damagepush)
-		
+	damagepush.sAnimation = "airpush_"..((dir-1)%4)
+	ret:AddDamage(damagepush)
+	
+	if self.BackACID then
+		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+		backDamage.iAcid = 1
+		ret:AddDamage(backDamage) 
+	end
 
 	return ret
 end
@@ -366,8 +378,9 @@ end
 narD_VATthrow_A = narD_VATthrow:new{
 	UpgradeDescription = "Add Time bomb to Vat.", --"Increases Vat's HP by two.",
 	--VatFire = 1, 
-	self_acid = true,
+	--self_acid = true,
 
+	BackACID = true,
 	--acid_repair = false,
 	--VatPawn = "narD_ACIDVat_AB",
 } 
@@ -382,7 +395,8 @@ narD_VATthrow_B = narD_VATthrow:new{
 
 narD_VATthrow_AB = narD_VATthrow:new{
 	--VatFire = 1,
-	self_acid = true,
+	-- self_acid = true,
+	BackACID = true,
 	SideACID = 1, 
 	-- Damage = 2,
 	-- Acid_Damage = 2,
@@ -483,17 +497,19 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 end
 
 narD_Shrapnel_A = narD_Shrapnel:new{
-	UpgradeDescription = "+ self A.C.I.D.", 
-	self_acid = true, 
+	UpgradeDescription = "+ Building Immune", --"+ self A.C.I.D.", 
+	-- self_acid = true, 
+	BuildingImmune = true,
 } 
 
 narD_Shrapnel_B = narD_Shrapnel:new{
-	UpgradeDescription = "+ Building Immune", 
-	--FriendlyDamage = false,
-	BuildingImmune = true,
+	UpgradeDescription = "+ Alley Immune", 
+	FriendlyDamage = false,
+	
 } 
 
 narD_Shrapnel_AB = narD_Shrapnel:new{
 	BuildingImmune = true,
-	self_acid = true, 
+	FriendlyDamage = false,
+	-- self_acid = true, 
 } 
