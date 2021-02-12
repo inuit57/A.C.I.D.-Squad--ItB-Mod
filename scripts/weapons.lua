@@ -1,14 +1,15 @@
 local wt2 = {	
-	narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
-	narD_acid_Charge_Upgrade2 = "+1 Max Damage", 
+	-- not used
+	-- narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
+	-- narD_acid_Charge_Upgrade2 = "+1 Max Damage", 
 
-	narD_Shrapnel_Upgrade1 =  "Building Immune",--"- selfRepair ", --"+ A.C.I.D.", 
-	narD_Shrapnel_Upgrade2 = "Ally Immune", --"+1 Max Damage", 
+	narD_Shrapnel_Upgrade1 =  "Building Immune", 
+	narD_Shrapnel_Upgrade2 =  "Ally Immune", 
 
-	narD_VATthrow_Upgrade1 =  "+ Timer",  --"- selfRepair ", --
+	narD_VATthrow_Upgrade1 =  "back A.C.I.D", --"+ self A.C.I.D",--"+ Timer",  
 	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", --"+1 Max Damage",
 
-	narD_PullBeam_Upgrade1 = "Ally Immune",--"- ACID repair", -- "+ A.C.I.D."
+	narD_PullBeam_Upgrade1 = "back A.C.I.D", --"+ self A.C.I.D", --"Ally Immune",
 	narD_PullBeam_Upgrade2 = "+ A.C.I.D",-- "+1 Max Damage",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
@@ -40,12 +41,13 @@ narD_PullBeam = LaserDefault:new{
 	SelfDamage = 0,
 	
 	Acid_Damage = 1, 
-	acid_repair = true,
+	self_acid = false,
+	BackACID = false,
 
 	ACID = 0,
 
 	Upgrades = 2,
-	UpgradeCost = { 1, 2 },
+	UpgradeCost = { 2, 2 },
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -104,7 +106,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	end
 	
 	
-	
+	--[[ 앞에서부터 끌어당기는 거. 
+	-- 문제점 : 맨 앞 놈이 데미지로 죽을 경우 뒤에 충돌피해 없이 그냥 다 땡겨와짐.
+	-- (툴팁에서 보여지는 거랑 달라보일 수가 있음)
 	for i = 1, #targets do
 		local curr = targets[i]
 		local damage = SpaceDamage(curr, 0, (dir-2)%4)
@@ -124,16 +128,53 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		temp_dmg = temp_dmg - 1 
 		if temp_dmg < min_dmg then temp_dmg = min_dmg end
 	end
+]]
+
+	--맨 뒷놈부터 끌어오는 거. 충돌피해가 생기긴 한다. 
+	-- 문제점 : 맨 앞놈이 죽었을 경우. 두번째 놈만 앞으로 한칸 끌려온다. 막을 수 있을까? 
+	for i = 0, #targets-1  do
+		local curr = targets[#targets - i]
+		local damage = SpaceDamage(curr, 0, (dir-2)%4)
+		
+		if curr == p1 + DIR_VECTORS[dir] then   -- hard coding. :( 
+			damage.iDamage  = temp_dmg 
+		end
+		if (curr == p1 + (DIR_VECTORS[dir]*2)) and temp_dmg > 1  then
+			damage.iDamage = temp_dmg - 1
+		end 
+
+		--damage.iDamage = temp_dmg
+
+		if Board:IsPawnSpace(curr) then
+			ret:AddDelay(0.1)
+			damage.iAcid = self.ACID
+		end
+
+		if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
+			damage.iDamage = 0 
+		end
+		
+		ret:AddDamage(damage)
+
+		-- temp_dmg = temp_dmg - 1 
+		-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
+	end
 
 
-	if acid_Bonus and self.acid_repair then 
+	if acid_Bonus  then 
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
 		ret:AddDamage(selfDamage)
-	else
+	elseif self.self_acid then
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  1 
 		ret:AddDamage(selfDamage)
+	end
+
+	if self.BackACID then
+		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+		backDamage.iAcid = 1
+		ret:AddDamage(backDamage) 
 	end
 
 	return ret
@@ -142,9 +183,9 @@ end
 narD_PullBeam_A = narD_PullBeam:new{ --
 	UpgradeDescription = "Increases Damage by 1.",--"Deals no damage to allies.",
 	--FriendlyDamage = false,
-	--acid_repair = false, 
-	FriendlyDamage = false, 
-	--SelfDamage = -1,
+	--self_acid = true, 
+	--FriendlyDamage = false, 
+	BackACID = true,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
@@ -161,7 +202,9 @@ narD_PullBeam_AB = narD_PullBeam:new{
 	--Acid_Damage = 2,
 	-- Damage = 3, 
 	ACID = 1,
-	FriendlyDamage = false, 
+	BackACID = true,
+	-- self_acid = true, 
+	--FriendlyDamage = false, 
 }
 --
 
@@ -222,65 +265,6 @@ function Acid_Death_Tooltip:GetSkillEffect(p1,p2)
 	return ret
 end
 
---[[
-narD_ACIDVat_AB = Pawn:new{
-	Name = "Little Acid Vat",
-	Health = 1,
-	Neutral = true,
-	MoveSpeed = 0,
-	--Image =  "narD_acdidVat" , --"barrel1",
-	DefaultTeam = TEAM_NONE, -- TEAM_PLAYER,
-	IsPortrait = false,
-	--Minor = true,
-	--Mission = true,
-	--Tooltip = "Acid_Death_Tooltip",
-	IsDeathEffect = true,
-}
-AddPawn("narD_ACIDVat_AB") 
-
-function narD_ACIDVat_AB:GetDeathEffect(point)
-	local ret = SkillEffect()
-	
-	-- 체력을 안 보이게 아예 투명 유닛으로 만드는 건 어려울까?
-	-- Lemon에게 물어볼 것?? 
-	-- 일단 막아놓자. 이런 방법을 찾은 것에 의의를 두도록 하자. 
-
-	-- 특정 유닛의 위치 찾기가 되는가?
-	local board_size = Board:GetSize()
-	--local repaired_units = {}
-	for i = 0, board_size.x - 1 do
-		for j = 0, board_size.y - 1  do
-			if Board:IsPawnTeam(Point(i,j),TEAM_PLAYER) then
-				local pawn_id = Board:GetPawn(Point(i,j)):GetId()
-				LOG(Board:GetPawn(Point(i,j)):GetId().."i :"..i.."j:"..j)
-				LOG(Board:GetPawn(Point(i,j)):GetMechName())
-				LOG()
-			end
-		end
-	end
-
-	local dir = 1 -- 임시...
-		
-	local damage2 = SpaceDamage(0)
-	damage2.loc = point + DIR_VECTORS[(dir+1)%4] 
-	ret:AddArtillery(damage2,"effects/shotup_acid.png",NO_DELAY) 
-
-	
-	damage2 = SpaceDamage(0)
-	damage2.loc = point + DIR_VECTORS[(dir-1)%4]
-	ret:AddArtillery(damage2,"effects/shotup_acid.png",NO_DELAY) 
-
-	local dmg3 = SpaceDamage(point, 0)
-	--dmg3.loc = point 
-	dmg3.sPawn = "narD_ACIDVat"
-	ret:AddDamage(dmg3)
-	
-	return ret
-end
-
-]]
-
-
 narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Name = "Vat Launcher",
 	Description = "Throws an A.C.I.D. vat that pushes adjacent tiles.", 
@@ -300,16 +284,17 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Upgrades = 2,
 	Push = false,
 	
-	acid_repair = true, 
+	self_acid = false, 
 
 	VatFire = 0,
 	VatPawn = "narD_ACIDVat", 
+	BackACID = false,
 
 
 	Acid_Damage = 1,
 	SideACID = 0, 
 	
-	UpgradeCost = {1, 2},
+	UpgradeCost = {2, 2},
 
 	TipImage = {
 		Unit = Point(2,4),
@@ -352,7 +337,7 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 			selfDamage.iAcid =  EFFECT_REMOVE 
 			ret:AddDamage(selfDamage)
 		end
-	else
+	elseif self.self_acid then
 		local selfDamage = SpaceDamage( p1  ,0) 
 		selfDamage.iAcid =  1 
 		ret:AddDamage(selfDamage)
@@ -365,32 +350,37 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 	ret:AddBoardShake(0.15)
 
 
+	local temp_point = p2 + DIR_VECTORS[(dir+1)%4]
+	local damagepush = SpaceDamage(temp_point, 0, (dir+1)%4)
+
 	
-	--if sub_damage ~= 0 then  -- 일단, sub_damage를 0으로 놓자. 
-		local temp_point = p2 + DIR_VECTORS[(dir+1)%4]
-		local damagepush = SpaceDamage(temp_point, 0, (dir+1)%4)
+	damagepush.sAnimation = "airpush_"..((dir+1)%4)
+	damagepush.iAcid = self.SideACID
+	ret:AddDamage(damagepush) 
+	
+	
+	temp_point = p2 + DIR_VECTORS[(dir-1)%4]
+	damagepush = SpaceDamage(temp_point, 0, (dir-1)%4)
+	damagepush.iAcid = self.SideACID
 
-		
-		damagepush.sAnimation = "airpush_"..((dir+1)%4)
-		damagepush.iAcid = self.SideACID
-		ret:AddDamage(damagepush) 
-		
-		
-		temp_point = p2 + DIR_VECTORS[(dir-1)%4]
-		damagepush = SpaceDamage(temp_point, 0, (dir-1)%4)
-		damagepush.iAcid = self.SideACID
-
-		damagepush.sAnimation = "airpush_"..((dir-1)%4)
-		ret:AddDamage(damagepush)
-		
+	damagepush.sAnimation = "airpush_"..((dir-1)%4)
+	ret:AddDamage(damagepush)
+	
+	if self.BackACID then
+		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+		backDamage.iAcid = 1
+		ret:AddDamage(backDamage) 
+	end
 
 	return ret
 end
 
 narD_VATthrow_A = narD_VATthrow:new{
 	UpgradeDescription = "Add Time bomb to Vat.", --"Increases Vat's HP by two.",
-	VatFire = 1, 
+	--VatFire = 1, 
+	--self_acid = true,
 
+	BackACID = true,
 	--acid_repair = false,
 	--VatPawn = "narD_ACIDVat_AB",
 } 
@@ -404,7 +394,9 @@ narD_VATthrow_B = narD_VATthrow:new{
 } 
 
 narD_VATthrow_AB = narD_VATthrow:new{
-	VatFire = 1,
+	--VatFire = 1,
+	-- self_acid = true,
+	BackACID = true,
 	SideACID = 1, 
 	-- Damage = 2,
 	-- Acid_Damage = 2,
@@ -431,7 +423,7 @@ narD_Shrapnel = TankDefault:new	{
 	Acid_Damage = 1,
 	FriendlyDamage = true, 
 
-	acid_repair = true, 
+	self_acid = false, 
 	LaunchSound = "/weapons/shrapnel",
 	ImpactSound = "/impact/generic/explosion",
 	ZoneTargeting = ZONE_DIR,
@@ -458,7 +450,7 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 
 	if Board:GetPawn(p1):IsAcid() then
 		damage.iDamage = self.Damage + self.Acid_Damage --*2 
-	else
+	elseif self.self_acid then 
 		local selfDamage = SpaceDamage( p1  ,0) 
 		selfDamage.iAcid =  1 
 		ret:AddDamage(selfDamage)
@@ -495,7 +487,7 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		end
 	end
 	
-	if (self.acid_repair) and (Board:GetPawn(p1):IsAcid()) then
+	if (Board:GetPawn(p1):IsAcid()) then
 		local selfDamage = SpaceDamage( p1  ,0) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
 		ret:AddDamage(selfDamage)
@@ -505,18 +497,19 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 end
 
 narD_Shrapnel_A = narD_Shrapnel:new{
-	UpgradeDescription = "+ Building Immune", --"Increases Vat's HP by two.",
+	UpgradeDescription = "+ Building Immune", --"+ self A.C.I.D.", 
+	-- self_acid = true, 
 	BuildingImmune = true,
-
 } 
 
 narD_Shrapnel_B = narD_Shrapnel:new{
-	UpgradeDescription = "Increases Damage by 2.", --"Increases Vat's HP by double.",
+	UpgradeDescription = "+ Alley Immune", 
 	FriendlyDamage = false,
+	
 } 
 
 narD_Shrapnel_AB = narD_Shrapnel:new{
 	BuildingImmune = true,
 	FriendlyDamage = false,
-
+	-- self_acid = true, 
 } 
