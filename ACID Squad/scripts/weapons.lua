@@ -105,6 +105,11 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 				
 	end
 	
+	if self.BackACID then
+		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+		backDamage.iAcid = 1
+		ret:AddDamage(backDamage) 
+	end
 	
 	-- 앞에서부터 끌어당기는 거. 
 	-- 문제점 : 맨 앞 놈이 데미지로 죽을 경우 뒤에 충돌피해 없이 그냥 다 땡겨와짐.
@@ -171,11 +176,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		ret:AddDamage(selfDamage)
 	end
 
-	if self.BackACID then
-		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
-		backDamage.iAcid = 1
-		ret:AddDamage(backDamage) 
-	end
+	
 
 	return ret
 end
@@ -289,7 +290,7 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	VatFire = 0,
 	VatPawn = "narD_ACIDVat", 
 	BackACID = false,
-
+	acid_repair = true,
 
 	Acid_Damage = 1,
 	SideACID = 0, 
@@ -343,6 +344,12 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 		ret:AddDamage(selfDamage)
 	end
 
+	if self.BackACID then
+		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+		backDamage.iAcid = 1
+		ret:AddDamage(backDamage) 
+	end
+
 	ret:AddArtillery(damage,"effects/shotup_acid.png")
 	-- shotup_acid
 
@@ -366,11 +373,6 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 	damagepush.sAnimation = "airpush_"..((dir-1)%4)
 	ret:AddDamage(damagepush)
 	
-	if self.BackACID then
-		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
-		backDamage.iAcid = 1
-		ret:AddDamage(backDamage) 
-	end
 
 	return ret
 end
