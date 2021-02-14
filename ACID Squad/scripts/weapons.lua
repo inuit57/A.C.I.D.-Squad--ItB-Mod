@@ -462,6 +462,11 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		damage.iDamage = 0
 	end
 
+	if (not self.FriendlyDamage) and (Board:IsPawnTeam(target ,TEAM_PLAYER)) then
+		damage.iDamage = 0 
+		
+	end
+
 	ret:AddProjectile(damage, "effects/shot_firefly")
 
 
@@ -477,10 +482,12 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 
 		if (self.BuildingImmune) and (Board:IsBuilding(target + DIR_VECTORS[dir])) then 
 			damage.iDamage = 0
+			
 		end
 
-		if not self.FriendlyDamage and Board:IsPawnTeam(target + DIR_VECTORS[dir],TEAM_PLAYER) then
+		if (not self.FriendlyDamage) and (Board:IsPawnTeam(target + DIR_VECTORS[dir],TEAM_PLAYER)) then
 			damage.iDamage = 0 
+			
 		end
 
 		damage.sAnimation = "airpush_"..dir
