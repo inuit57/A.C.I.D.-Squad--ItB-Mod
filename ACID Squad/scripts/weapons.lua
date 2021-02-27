@@ -114,25 +114,61 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	-- 앞에서부터 끌어당기는 거. 
 	-- 문제점 : 맨 앞 놈이 데미지로 죽을 경우 뒤에 충돌피해 없이 그냥 다 땡겨와짐.
 	-- (툴팁에서 보여지는 거랑 달라보일 수가 있음)
-	for i = 1, #targets do
-		local curr = targets[i]
-		local damage = SpaceDamage(curr, 0, (dir-2)%4)
-		damage.iDamage = temp_dmg
 
-		if Board:IsPawnSpace(curr) then
-			ret:AddDelay(0.1)
-			damage.iAcid = self.ACID
+	
+	local curr = targets[1]
+	local damage 
+	local flag = false
+	if Board:IsPawnSpace(curr) then
+		-- if Board:GetPawn(curr):GetType() == "narD_ACIDVat" then
+		-- 	damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+		-- 	ret:AddDamage(damage)
+		-- else
+
+		--"AcidVat"
+		--LOG(Board:GetPawn(curr):GetType())
+		if (Board:GetPawn(curr):GetHealth() <= (temp_dmg + 1) ) and 
+			(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
+			(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
+			flag = true
+		else
+			damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+			ret:AddDamage(damage)
 		end
-
-		if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
-			damage.iDamage = 0 
-		end
-		
-		ret:AddDamage(damage)
-
-		temp_dmg = temp_dmg - 1 
-		if temp_dmg < min_dmg then temp_dmg = min_dmg end
+	
 	end
+		
+
+	if #targets >= 2 then
+		for i = 2, #targets do
+			curr = targets[i]
+			damage = SpaceDamage(curr, 0, (dir-2)%4)
+			
+			--damage.iDamage = temp_dmg
+			
+			if Board:IsPawnSpace(curr) then
+				ret:AddDelay(0.1)
+				
+				damage.iAcid = self.ACID
+			end
+
+			if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
+				damage.iDamage = 0 
+			end
+			
+			ret:AddDamage(damage)
+
+			-- temp_dmg = temp_dmg - 1 
+			-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
+		end
+	end
+
+	if flag then 
+		curr = targets[1] 
+		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+		ret:AddDelay(0.2)
+		ret:AddDamage(damage)
+	end 
 
 
 	--맨 뒷놈부터 끌어오는 거. 충돌피해가 생기긴 한다. 
