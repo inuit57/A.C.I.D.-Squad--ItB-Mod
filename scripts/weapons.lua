@@ -120,17 +120,14 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	local damage 
 	local flag = false
 	if Board:IsPawnSpace(curr) then
-		-- if Board:GetPawn(curr):GetType() == "narD_ACIDVat" then
-		-- 	damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
-		-- 	ret:AddDamage(damage)
-		-- else
-
-		--"AcidVat"
 		--LOG(Board:GetPawn(curr):GetType())
-		if (Board:GetPawn(curr):GetHealth() <= (temp_dmg + 1) ) and 
-			(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
-			(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
+		if (Board:GetPawn(curr):GetHealth() <= (temp_dmg + 1) ) then -- 굳이 예외를 두진 않아도 되려나.
+		-- and 
+		-- 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
+		-- 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
 			flag = true
+			-- LOG(curr)
+			-- LOG(flag)
 		else
 			damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
 			ret:AddDamage(damage)
@@ -163,7 +160,10 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		end
 	end
 
-	if flag then 
+	if flag then
+		-- LOG("2") 
+		-- LOG(curr)
+		-- LOG(flag)
 		curr = targets[1] 
 		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
 		ret:AddDelay(0.2)
