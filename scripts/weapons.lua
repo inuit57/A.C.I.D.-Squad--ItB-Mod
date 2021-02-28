@@ -121,10 +121,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	local flag = false
 	if Board:IsPawnSpace(curr) then
 		--LOG(Board:GetPawn(curr):GetType())
-		if (Board:GetPawn(curr):GetHealth() <= (temp_dmg + 1) ) then -- 굳이 예외를 두진 않아도 되려나.
-		-- and 
-		-- 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
-		-- 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
+		if (Board:GetPawn(curr):GetHealth() <= (temp_dmg + 1) )  and 
+		 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
+		 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
 			flag = true
 			-- LOG(curr)
 			-- LOG(flag)
@@ -246,7 +245,7 @@ narD_PullBeam_AB = narD_PullBeam:new{
 --
 
 narD_ACIDVat = Pawn:new{
-	Name = "A.C.I.D. Vat",
+	Name = "A.C.I.D. Vat",  -- "A.C.I.D. Barrel"
 	Health = 2,--1,
 	Neutral = true,
 	MoveSpeed = 0,
