@@ -125,15 +125,20 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
 		 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
 			flag = true
-			-- LOG(curr)
-			-- LOG(flag)
-		else
-			damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
-			ret:AddDamage(damage)
+		-- else
+		-- 	damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+		-- 	ret:AddDamage(damage)
 		end
 	
+	--else
+		-- damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+		-- ret:AddDamage(damage)
 	end
-		
+	
+	if not flag then
+		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+		ret:AddDamage(damage)
+	end
 
 	if #targets >= 2 then
 		for i = 2, #targets do
