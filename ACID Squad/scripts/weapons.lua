@@ -120,11 +120,14 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	local damage 
 	local flag = false
 	local check_damage = temp_dmg 
-	if (Board:GetPawn(curr):IsAcid()) then
-		check_damage = temp_dmg*2 
+
+	if (Board:IsPawnSpace(curr) ) and (Board:GetPawn(curr):IsAcid()) then
+		check_damage = temp_dmg * 2  
+		
 	end
+	
 	if Board:IsPawnSpace(curr) then
-		--LOG(Board:GetPawn(curr):GetType())
+
 		if (Board:GetPawn(curr):GetHealth() <= (check_damage + 1) )  and 
 		 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
 		 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
@@ -132,9 +135,13 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		end
 				
 	end
-	
+
 	if not flag then
 		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+		if Board:IsPawnSpace(curr) then
+			ret:AddDelay(0.1)
+			damage.iAcid = self.ACID
+		end
 		ret:AddDamage(damage)
 	end
 
@@ -163,12 +170,10 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	end
 
 	if flag then
-		-- LOG("2") 
-		-- LOG(curr)
-		-- LOG(flag)
 		curr = targets[1] 
 		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
-		ret:AddDelay(0.2)
+		ret:AddDelay(0.3)
+		damage.iAcid = self.ACID
 		ret:AddDamage(damage)
 	end 
 
