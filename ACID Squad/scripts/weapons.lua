@@ -25,7 +25,7 @@ end
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls and damages all units in a line.",
+	Description = "Pulls all units in a line. and damages first units.",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
 	Explosion = "",
@@ -264,7 +264,9 @@ function narD_ACIDVat:GetDeathEffect(point)
 	
 	local dam = SpaceDamage(point)
 
-	dam.iTerrain = TERRAIN_WATER
+	if not Board:IsSpawning(point) then
+		dam.iTerrain = TERRAIN_WATER	
+	end
 	dam.iAcid = 1
 	dam.sAnimation = "splash"--hack
 	dam.sSound = "/props/acid_vat_break"
