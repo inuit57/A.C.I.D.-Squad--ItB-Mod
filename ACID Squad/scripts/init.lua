@@ -44,6 +44,21 @@ local function init(self)
 			Icon =              {},
 		},
 		
+		{
+			Type = "mech",
+			Name = "MangonelleMech",
+			Filename = "Mangonelle",
+			Path = "img/units", 
+			ResourcePath = "units/player",
+
+			Default =           {  PosX = -18, PosY = -6  },
+			Animated =          {  PosX = -24, PosY = -6 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
+			Broken =            {  PosX = -24, PosY = -6, },
+			Submerged =         { PosX = -26, PosY = 4},
+			SubmergedBroken =   { PosX = -22, PosY = 4 },
+			Icon =              {},
+		},
+		
 	});
 
 	require(self.scriptPath.."pawns")
