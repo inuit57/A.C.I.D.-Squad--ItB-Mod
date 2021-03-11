@@ -131,6 +131,28 @@ local function init(self)
 		Location["effects/"..v.."_start.png"] = Point(-12,3)
 	end
 
+
+	require(self.scriptPath .."achievements/init")
+	require(self.scriptPath .."achievements")
+	require(self.scriptPath .."achievementTriggers"):init()
+	local achvApi = require(self.scriptPath.."/achievements/api")
+
+
+	-- shop:addWeapon({
+	-- 	id = "tosx_Prime_AeroThrusters",
+	-- 	name = tosx_Prime_AeroThrusters.Name,
+	-- 	desc = "Adds Aero Thrusters to the store."
+	-- })
+	-- shop:addWeapon({
+	-- 	id = "tosx_Brute_Microburst",
+	-- 	name = tosx_Brute_Microburst.Name,
+	-- 	desc = "Adds Microburst to the store."
+	-- })
+	-- shop:addWeapon({
+	-- 	id = "tosx_Ranged_Cyclone",
+	-- 	name = tosx_Ranged_Cyclone.Name,
+	-- 	desc = "Adds Cyclone Launcher to the store."
+	-- })
 end
 
 
