@@ -1,16 +1,13 @@
 local wt2 = {	
-	-- not used
-	-- narD_acid_Charge_Upgrade1 = "+ A.C.I.D.", 
-	-- narD_acid_Charge_Upgrade2 = "+1 Max Damage", 
 
 	narD_Shrapnel_Upgrade1 =  "Building Immune", 
 	narD_Shrapnel_Upgrade2 =  "Ally Immune", 
 
-	narD_VATthrow_Upgrade1 =  "back A.C.I.D", --"+ self A.C.I.D",--"+ Timer",  
-	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", --"+1 Max Damage",
+	narD_VATthrow_Upgrade1 = "+Back A.C.I.D", 
+	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", 
 
-	narD_PullBeam_Upgrade1 = "back A.C.I.D", --"+ self A.C.I.D", --"Ally Immune",
-	narD_PullBeam_Upgrade2 = "+ A.C.I.D",-- "+1 Max Damage",
+	narD_PullBeam_Upgrade1 = "+Back A.C.I.D", 
+	narD_PullBeam_Upgrade2 = "+A.C.I.D Tip",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
 
@@ -25,7 +22,7 @@ end
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls all units in a line. and damages first units.",
+	Description = "Pulls all units in the line. and damages first units. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
 	Explosion = "",
@@ -35,8 +32,8 @@ narD_PullBeam = LaserDefault:new{
 	ZoneTargeting = ZONE_DIR,
 
 	LaunchSound = "/weapons/push_beam",
-	Damage = 1,
-	MinDamage = 0,
+	Damage = 2,
+	MinDamage = 1, -- for tooltip
 	FriendlyDamage = true,
 	SelfDamage = 0,
 	
@@ -58,24 +55,7 @@ narD_PullBeam = LaserDefault:new{
 	} 
 }
 
-			
--- function narD_PullBeam:GetTargetArea(point)
--- 	local ret = PointList()
-	
--- 	for i = DIR_START, DIR_END do
--- 		for k = 1, 8 do
--- 			local curr = DIR_VECTORS[i]*k + point
--- 			if Board:GetTerrain(curr) ~= TERRAIN_MOUNTAIN and not Board:IsBuilding(curr) and Board:IsValid(curr) then
--- 			--if Board:IsValid(curr) and not Board:IsBlocked(curr, Pawn:GetPathProf()) then
--- 				ret:push_back(DIR_VECTORS[i]*k + point)
--- 			else
--- 				break
--- 			end
--- 		end
--- 	end
-	
--- 	return ret
--- end
+
 
 function narD_PullBeam:GetSkillEffect(p1,p2)
 	local ret = SkillEffect()
@@ -91,8 +71,8 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	
 	local dam = SpaceDamage(curr, 0)
 		
-	local temp_dmg = self.Damage	
-	local min_dmg = self.MinDamage
+	local temp_dmg = self.MinDamage	
+	--local min_dmg = self.MinDamage
 
 	local acid_Bonus = Board:GetPawn(p1):IsAcid()
 
@@ -110,11 +90,6 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		backDamage.iAcid = 1
 		ret:AddDamage(backDamage) 
 	end
-	
-	-- 앞에서부터 끌어당기는 거. 
-	-- 문제점 : 맨 앞 놈이 데미지로 죽을 경우 뒤에 충돌피해 없이 그냥 다 땡겨와짐.
-	-- (툴팁에서 보여지는 거랑 달라보일 수가 있음)
-
 	
 	local curr = targets[1]
 	local damage 
@@ -177,38 +152,6 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		ret:AddDamage(damage)
 	end 
 
-
-	--맨 뒷놈부터 끌어오는 거. 충돌피해가 생기긴 한다. 
-	-- 문제점 : 맨 앞놈이 죽었을 경우. 두번째 놈만 앞으로 한칸 끌려온다. 막을 수 있을까? 
---[[	for i = 0, #targets-1  do
-		local curr = targets[#targets - i]
-		local damage = SpaceDamage(curr, 0, (dir-2)%4)
-		
-		if curr == p1 + DIR_VECTORS[dir] then   -- hard coding. :( 
-			damage.iDamage  = temp_dmg 
-		end
-		if (curr == p1 + (DIR_VECTORS[dir]*2)) and temp_dmg > 1  then
-			damage.iDamage = temp_dmg - 1
-		end 
-
-		--damage.iDamage = temp_dmg
-
-		if Board:IsPawnSpace(curr) then
-			ret:AddDelay(0.1)
-			damage.iAcid = self.ACID
-		end
-
-		if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
-			damage.iDamage = 0 
-		end
-		
-		ret:AddDamage(damage)
-
-		-- temp_dmg = temp_dmg - 1 
-		-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
-	end
-]]
-
 	if acid_Bonus  then 
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
@@ -225,30 +168,21 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 end
 
 narD_PullBeam_A = narD_PullBeam:new{ --
-	UpgradeDescription = "Increases Damage by 1.",--"Deals no damage to allies.",
-	--FriendlyDamage = false,
-	--self_acid = true, 
-	--FriendlyDamage = false, 
+	UpgradeDescription = "Spill the A.C.I.D. behind the Mech.",
+
 	BackACID = true,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
-	UpgradeDescription = "Increases Damage by 1.",
-	-- Damage = 2, 
-	--Acid_Damage = 2,
+	UpgradeDescription = "Applying A.C.I.D. to the hit targets.",
 	ACID = 1,
 }
 
 narD_PullBeam_AB = narD_PullBeam:new{ 
-	--FriendlyDamage = false,
-	--SelfDamage = -1,
-	--acid_repair = false, 
-	--Acid_Damage = 2,
-	-- Damage = 3, 
+
 	ACID = 1,
 	BackACID = true,
-	-- self_acid = true, 
-	--FriendlyDamage = false, 
+
 }
 --
 
@@ -313,7 +247,8 @@ end
 
 narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Name = "Vat Launcher",
-	Description = "Throws an A.C.I.D. vat that pushes adjacent tiles.", 
+	Description = "Throw an A.C.I.D. vat at a chosen target. A.C.I.D. vat remains as an obstacle. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	--"Throws an A.C.I.D. vat that pushes adjacent tiles.", 
 
 	Class = "Ranged",
 	Icon =  "weapons/vat_throw.png", --"weapons/acid_bomb_throw.png",
@@ -323,8 +258,8 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Explosion = "",
 	PowerCost = 1,
 	BounceAmount = 1,
-	Damage = 1,
-	--MinDamage = 0,
+	Damage = 2,
+	MinDamage = 1, -- for tooltip
 	LaunchSound = "/weapons/boulder_throw",
 	ImpactSound =  "/props/acid_vat_break", --"/impact/dynamic/rock",
 	Upgrades = 2,
@@ -356,9 +291,7 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 function narD_VATthrow:GetSkillEffect(p1,p2)
 	local ret = SkillEffect()
 	local dir = GetDirection(p2 - p1)
-	local damage = SpaceDamage(p2, self.Damage)
-	
-	--local sub_damage = self.Damage -- 0 
+	local damage = SpaceDamage(p2, self.MinDamage)
 
 
 	if Board:IsValid(p2) and not Board:IsBlocked(p2,PATH_PROJECTILE) then
@@ -376,7 +309,7 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 	local acid_Bonus = Board:GetPawn(p1):IsAcid()  
 	
 	if acid_Bonus then 
-		damage.iDamage = self.Damage + self.Acid_Damage --*2  
+		damage.iDamage = self.MinDamage + self.Acid_Damage --*2  
 		
 		if self.acid_repair then 
 			local selfDamage = SpaceDamage( p1  ,0) 
@@ -423,46 +356,34 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 end
 
 narD_VATthrow_A = narD_VATthrow:new{
-	UpgradeDescription = "Add Time bomb to Vat.", --"Increases Vat's HP by two.",
-	--VatFire = 1, 
-	--self_acid = true,
+	UpgradeDescription = "Spill the A.C.I.D. behind the Mech.",
 
 	BackACID = true,
-	--acid_repair = false,
-	--VatPawn = "narD_ACIDVat_AB",
+
 } 
 
 narD_VATthrow_B = narD_VATthrow:new{
-	UpgradeDescription = "Increases Damage by 2.", --"Increases Vat's HP by double.",
+	UpgradeDescription = "Spray additional A.C.I.D. on adjacent tiles.",
 
 	SideACID = 1, 
-	-- Damage = 2,
-	--Acid_Damage = 2,
 } 
 
 narD_VATthrow_AB = narD_VATthrow:new{
-	--VatFire = 1,
-	-- self_acid = true,
 	BackACID = true,
 	SideACID = 1, 
-	-- Damage = 2,
-	-- Acid_Damage = 2,
-	--VatPawn = "narD_ACIDVat_AB", 
 } 
-
-
 
 narD_Shrapnel = TankDefault:new	{
 
 	Name = "A.C.I.D. Shrapnel",
-	Description = "needs description ", 
+	Description = "Launch a volatile mass of goo, applying A.C.I.D. on nearby units and pushing them aside. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
 
 	Class = "Brute", 
 	Icon = "weapons/enemy_firefly2.png", -- need change?.
 	Explosion = "ExploFirefly2",
 	Sound = "/general/combat/explode_small",
-	Damage = 1,--1,
-	
+	Damage = 2,
+	MinDamage = 1, 
 	Push = 1,
 	PowerCost = 2,
 	Acid = 1, 
@@ -492,11 +413,11 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 	local direction = GetDirection(p2 - p1)
 	local target = GetProjectileEnd(p1,p2)  
 	
-	local damage = SpaceDamage(target, self.Damage)
+	local damage = SpaceDamage(target, self.MinDamage)
 	damage.iAcid = self.Acid 
 
 	if Board:GetPawn(p1):IsAcid() then
-		damage.iDamage = self.Damage + self.Acid_Damage --*2 
+		damage.iDamage = self.MinDamage + self.Acid_Damage --*2 
 	elseif self.self_acid then 
 		local selfDamage = SpaceDamage( p1  ,0) 
 		selfDamage.iAcid =  1 
@@ -518,11 +439,11 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 --	ret.path = Board:GetSimplePath(p1, target)
 
 	for dir = 0, 3 do
-		damage = SpaceDamage(target + DIR_VECTORS[dir], self.Damage , dir)
+		damage = SpaceDamage(target + DIR_VECTORS[dir], self.MinDamage , dir)
 		damage.iAcid = self.Acid 
 
 		if Board:GetPawn(p1):IsAcid() then
-			damage.iDamage = self.Damage + self.Acid_Damage --*2 
+			damage.iDamage = self.MinDamage + self.Acid_Damage --*2 
 		end
 
 		if (self.BuildingImmune) and (Board:IsBuilding(target + DIR_VECTORS[dir])) then 
@@ -551,13 +472,13 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 end
 
 narD_Shrapnel_A = narD_Shrapnel:new{
-	UpgradeDescription = "+ Building Immune", --"+ self A.C.I.D.", 
+	UpgradeDescription = "This attack will no longer damage Grid Buildings.",
 	-- self_acid = true, 
 	BuildingImmune = true,
 } 
 
 narD_Shrapnel_B = narD_Shrapnel:new{
-	UpgradeDescription = "+ Alley Immune", 
+	UpgradeDescription = "Deals no damage to allies.",
 	FriendlyDamage = false,
 	
 } 
