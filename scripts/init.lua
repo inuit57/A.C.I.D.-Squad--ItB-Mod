@@ -37,7 +37,7 @@ local function init(self)
 			ResourcePath = "units/player",
 
 			Default =           {  PosX = -18, PosY = -6  },
-			Animated =          {  PosX = -18, PosY = -6 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
+			Animated =          {  PosX = -22, PosY = -3 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
 			Broken =            {  PosX = -20, PosY = -6, },
 			Submerged =         { PosX = -26, PosY = 4},
 			SubmergedBroken =   { PosX = -22, PosY = 4 },

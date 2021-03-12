@@ -22,10 +22,10 @@ end
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls all units in the line. and damages first units. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	Description = "Pulls all units in the line. And damages first units. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
-	Explosion = "",
+	Explosion = "", -- "ExploFirefly2",
 	Sound = "",
 	PowerCost = 1,
 	
@@ -155,11 +155,12 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	if acid_Bonus  then 
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
+		selfDamage.sAnimation = "ExploFirefly2"
 		ret:AddDamage(selfDamage)
-	elseif self.self_acid then
-		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
-		selfDamage.iAcid =  1 
-		ret:AddDamage(selfDamage)
+	-- elseif self.self_acid then
+	-- 	local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
+	-- 	selfDamage.iAcid =  1 
+	-- 	ret:AddDamage(selfDamage)
 	end
 
 	
@@ -255,7 +256,8 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Sound = "",
 	ArtilleryStart = 2,
 	ArtillerySize = 8,
-	Explosion = "",
+	Explosion = "", 
+	-- Explosion = "ExploFirefly2",
 	PowerCost = 1,
 	BounceAmount = 1,
 	Damage = 2,
@@ -283,8 +285,6 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 		Enemy2 = Point(3,1),
 		Target = Point(2,1),
 
-		Second_Origin = Point(2,4),
-		Second_Target = Point(2,2),
 	}
 }
 					
@@ -314,6 +314,8 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 		if self.acid_repair then 
 			local selfDamage = SpaceDamage( p1  ,0) 
 			selfDamage.iAcid =  EFFECT_REMOVE 
+			-- selfDamage.Explosion = "ExploFirefly2"
+			selfDamage.sAnimation = "ExploFirefly2"
 			ret:AddDamage(selfDamage)
 		end
 	elseif self.self_acid then
@@ -405,6 +407,7 @@ narD_Shrapnel = TankDefault:new	{
 		Enemy = Point(1,1),
 		Enemy2 = Point(2,1),
 		Target = Point(2,1)
+		
 	}
 }
 			
