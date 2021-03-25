@@ -6,8 +6,8 @@ local wt2 = {
 	narD_VATthrow_Upgrade1 = "+Back A.C.I.D", 
 	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", 
 
-	narD_PullBeam_Upgrade1 = "+Back A.C.I.D", 
-	narD_PullBeam_Upgrade2 = "+A.C.I.D Tip",
+	narD_PullBeam_Upgrade1 = "+A.C.I.D Tip",
+	narD_PullBeam_Upgrade2 = "+1 Damage",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
 
@@ -37,14 +37,14 @@ narD_PullBeam = LaserDefault:new{
 	FriendlyDamage = true,
 	SelfDamage = 0,
 	
-	Acid_Damage = 1, 
+	--Acid_Damage = 1, 
 	self_acid = false,
 	BackACID = false,
 
 	ACID = 0,
 
 	Upgrades = 2,
-	UpgradeCost = { 2, 2 },
+	UpgradeCost = { 2, 3 },
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -69,7 +69,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	end
 	targets[#targets+1] = curr 
 	
-	local dam = SpaceDamage(curr, 0)
+	--local dam = SpaceDamage(curr, 0)
 		
 	local temp_dmg = self.MinDamage	
 	--local min_dmg = self.MinDamage
@@ -77,7 +77,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	local acid_Bonus = Board:GetPawn(p1):IsAcid()
 
 	if acid_Bonus then 
-		temp_dmg = temp_dmg + self.Acid_Damage  -- *2 
+		temp_dmg = self.Damage 
 		
 		ret:AddProjectile(dam,"effects/laser_acid")
 	else
@@ -98,7 +98,6 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 
 	if (Board:IsPawnSpace(curr) ) and (Board:GetPawn(curr):IsAcid()) then
 		check_damage = temp_dmg * 2  
-		
 	end
 	
 	if Board:IsPawnSpace(curr) then
@@ -115,8 +114,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
 		if Board:IsPawnSpace(curr) then
 			ret:AddDelay(0.1)
-			damage.iAcid = self.ACID
+			-- damage.iAcid = self.ACID
 		end
+		damage.iAcid = self.ACID
 		ret:AddDamage(damage)
 	end
 
@@ -130,13 +130,14 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 			if Board:IsPawnSpace(curr) then
 				ret:AddDelay(0.1)
 				
-				damage.iAcid = self.ACID
+				--damage.iAcid = self.ACID
 			end
 
 			if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
 				damage.iDamage = 0 
 			end
 			
+			damage.iAcid = self.ACID
 			ret:AddDamage(damage)
 
 			-- temp_dmg = temp_dmg - 1 
@@ -169,20 +170,21 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 end
 
 narD_PullBeam_A = narD_PullBeam:new{ --
-	UpgradeDescription = "Spill the A.C.I.D. behind the Mech.",
-
-	BackACID = true,
+	UpgradeDescription = "Applying A.C.I.D. to a line.",
+	ACID = 1,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
-	UpgradeDescription = "Applying A.C.I.D. to the hit targets.",
-	ACID = 1,
+	UpgradeDescription = "Increases damage by 1.",
+	MinDamage = 2,
+	Damage = 4, 
 }
 
 narD_PullBeam_AB = narD_PullBeam:new{ 
 
 	ACID = 1,
-	BackACID = true,
+	MinDamage = 2,
+	Damage = 4, 
 
 }
 --
