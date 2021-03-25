@@ -22,7 +22,7 @@ end
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls all units in the line. And damages first units. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.",
+	Description = "Pull all units in a line, damaging adjacent.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
 	Explosion = "", -- "ExploFirefly2",
@@ -189,7 +189,7 @@ narD_PullBeam_AB = narD_PullBeam:new{
 
 narD_ACIDVat = Pawn:new{
 	Name = "A.C.I.D. Vat",  -- "A.C.I.D. Barrel"
-	Health = 2,--1,
+	Health = 1, --2
 	Neutral = true,
 	MoveSpeed = 0,
 	Image =  "narD_acdidVat" , --"barrel1",
@@ -248,7 +248,7 @@ end
 
 narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Name = "Vat Launcher",
-	Description = "Throw an A.C.I.D. vat at a chosen target. A.C.I.D. vat remains as an obstacle. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	Description = "Throw an A.C.I.D. vat at a chosen target. A.C.I.D. vat remains as an obstacle. \nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage", 
 	--"Throws an A.C.I.D. vat that pushes adjacent tiles.", 
 
 	Class = "Ranged",
@@ -378,7 +378,7 @@ narD_VATthrow_AB = narD_VATthrow:new{
 narD_Shrapnel = TankDefault:new	{
 
 	Name = "A.C.I.D. Shrapnel",
-	Description = "Launch a volatile mass of goo, applying A.C.I.D. on nearby units and pushing them aside. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	Description = "Launch a volatile mass of goo, applying A.C.I.D. on nearby units and pushing them aside.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage", 
 
 	Class = "Brute", 
 	Icon = "weapons/enemy_firefly2.png", -- need change?.
