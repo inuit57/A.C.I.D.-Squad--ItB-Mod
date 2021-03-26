@@ -69,7 +69,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	end
 	targets[#targets+1] = curr 
 	
-	--local dam = SpaceDamage(curr, 0)
+	local dam = SpaceDamage(curr, 0) -- for effect 
 		
 	local temp_dmg = self.MinDamage	
 	--local min_dmg = self.MinDamage
