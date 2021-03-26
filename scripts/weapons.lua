@@ -6,8 +6,8 @@ local wt2 = {
 	narD_VATthrow_Upgrade1 = "+Back A.C.I.D", 
 	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", 
 
-	narD_PullBeam_Upgrade1 = "+Back A.C.I.D", 
-	narD_PullBeam_Upgrade2 = "+A.C.I.D Tip",
+	narD_PullBeam_Upgrade1 = "+A.C.I.D Tip",
+	narD_PullBeam_Upgrade2 = "+1 Damage",
 }
 for k,v in pairs(wt2) do Weapon_Texts[k] = v end
 
@@ -22,10 +22,10 @@ end
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pulls all units in the line. and damages first units. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	Description = "Pull all units in a line, damaging adjacent.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
-	Explosion = "",
+	Explosion = "", -- "ExploFirefly2",
 	Sound = "",
 	PowerCost = 1,
 	
@@ -37,14 +37,14 @@ narD_PullBeam = LaserDefault:new{
 	FriendlyDamage = true,
 	SelfDamage = 0,
 	
-	Acid_Damage = 1, 
+	--Acid_Damage = 1, 
 	self_acid = false,
 	BackACID = false,
 
 	ACID = 0,
 
 	Upgrades = 2,
-	UpgradeCost = { 2, 2 },
+	UpgradeCost = { 2, 3 },
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -69,7 +69,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	end
 	targets[#targets+1] = curr 
 	
-	local dam = SpaceDamage(curr, 0)
+	local dam = SpaceDamage(curr, 0) -- for effect 
 		
 	local temp_dmg = self.MinDamage	
 	--local min_dmg = self.MinDamage
@@ -77,7 +77,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	local acid_Bonus = Board:GetPawn(p1):IsAcid()
 
 	if acid_Bonus then 
-		temp_dmg = temp_dmg + self.Acid_Damage  -- *2 
+		temp_dmg = self.Damage 
 		
 		ret:AddProjectile(dam,"effects/laser_acid")
 	else
@@ -98,7 +98,6 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 
 	if (Board:IsPawnSpace(curr) ) and (Board:GetPawn(curr):IsAcid()) then
 		check_damage = temp_dmg * 2  
-		
 	end
 	
 	if Board:IsPawnSpace(curr) then
@@ -115,8 +114,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
 		if Board:IsPawnSpace(curr) then
 			ret:AddDelay(0.1)
-			damage.iAcid = self.ACID
+			-- damage.iAcid = self.ACID
 		end
+		damage.iAcid = self.ACID
 		ret:AddDamage(damage)
 	end
 
@@ -130,13 +130,14 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 			if Board:IsPawnSpace(curr) then
 				ret:AddDelay(0.1)
 				
-				damage.iAcid = self.ACID
+				--damage.iAcid = self.ACID
 			end
 
 			if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
 				damage.iDamage = 0 
 			end
 			
+			damage.iAcid = self.ACID
 			ret:AddDamage(damage)
 
 			-- temp_dmg = temp_dmg - 1 
@@ -155,11 +156,12 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	if acid_Bonus  then 
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
+		selfDamage.sAnimation = "ExploFirefly2"
 		ret:AddDamage(selfDamage)
-	elseif self.self_acid then
-		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
-		selfDamage.iAcid =  1 
-		ret:AddDamage(selfDamage)
+	-- elseif self.self_acid then
+	-- 	local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
+	-- 	selfDamage.iAcid =  1 
+	-- 	ret:AddDamage(selfDamage)
 	end
 
 	
@@ -168,27 +170,28 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 end
 
 narD_PullBeam_A = narD_PullBeam:new{ --
-	UpgradeDescription = "Spill the A.C.I.D. behind the Mech.",
-
-	BackACID = true,
+	UpgradeDescription = "Applying A.C.I.D. to a line.",
+	ACID = 1,
 }
 
 narD_PullBeam_B = narD_PullBeam:new{ --
-	UpgradeDescription = "Applying A.C.I.D. to the hit targets.",
-	ACID = 1,
+	UpgradeDescription = "Increases damage by 1.",
+	MinDamage = 2,
+	Damage = 4, 
 }
 
 narD_PullBeam_AB = narD_PullBeam:new{ 
 
 	ACID = 1,
-	BackACID = true,
+	MinDamage = 2,
+	Damage = 4, 
 
 }
 --
 
 narD_ACIDVat = Pawn:new{
 	Name = "A.C.I.D. Vat",  -- "A.C.I.D. Barrel"
-	Health = 2,--1,
+	Health = 1, --2
 	Neutral = true,
 	MoveSpeed = 0,
 	Image =  "narD_acdidVat" , --"barrel1",
@@ -247,7 +250,7 @@ end
 
 narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Name = "Vat Launcher",
-	Description = "Throw an A.C.I.D. vat at a chosen target. A.C.I.D. vat remains as an obstacle. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	Description = "Throw an A.C.I.D. vat at a chosen target. A.C.I.D. vat remains as an obstacle. \nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage", 
 	--"Throws an A.C.I.D. vat that pushes adjacent tiles.", 
 
 	Class = "Ranged",
@@ -255,7 +258,8 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Sound = "",
 	ArtilleryStart = 2,
 	ArtillerySize = 8,
-	Explosion = "",
+	Explosion = "", 
+	-- Explosion = "ExploFirefly2",
 	PowerCost = 1,
 	BounceAmount = 1,
 	Damage = 2,
@@ -283,8 +287,6 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 		Enemy2 = Point(3,1),
 		Target = Point(2,1),
 
-		Second_Origin = Point(2,4),
-		Second_Target = Point(2,2),
 	}
 }
 					
@@ -314,6 +316,8 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 		if self.acid_repair then 
 			local selfDamage = SpaceDamage( p1  ,0) 
 			selfDamage.iAcid =  EFFECT_REMOVE 
+			-- selfDamage.Explosion = "ExploFirefly2"
+			selfDamage.sAnimation = "ExploFirefly2"
 			ret:AddDamage(selfDamage)
 		end
 	elseif self.self_acid then
@@ -376,7 +380,7 @@ narD_VATthrow_AB = narD_VATthrow:new{
 narD_Shrapnel = TankDefault:new	{
 
 	Name = "A.C.I.D. Shrapnel",
-	Description = "Launch a volatile mass of goo, applying A.C.I.D. on nearby units and pushing them aside. \n If the Mech is A.C.I.D. state, remove the A.C.I.D. state and apply twice as much damage to the target.", 
+	Description = "Launch a volatile mass of goo, applying A.C.I.D. on nearby units and pushing them aside.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage", 
 
 	Class = "Brute", 
 	Icon = "weapons/enemy_firefly2.png", -- need change?.
@@ -405,6 +409,7 @@ narD_Shrapnel = TankDefault:new	{
 		Enemy = Point(1,1),
 		Enemy2 = Point(2,1),
 		Target = Point(2,1)
+		
 	}
 }
 			

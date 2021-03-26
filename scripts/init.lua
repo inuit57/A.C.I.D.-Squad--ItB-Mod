@@ -1,19 +1,6 @@
 local function init(self)
 	require(self.scriptPath.."FURL")(self, {
-		-- {
-		-- 	Type = "color",
-		-- 	Name = "FrostThrone",
-		-- 	PawnLocation = self.scriptPath.."pawns",
-			
-		-- 	PlateHighlight =	{242, 132, 34},	--lights
-		-- 	PlateLight =		{116, 125, 127},	--main highlight
-		-- 	PlateMid =			{62, 71, 73},	--main light
-		-- 	PlateDark =			{29, 38, 40},	--main mid
-		-- 	PlateOutline =		{7, 12, 13},	--main dark
-		-- 	BodyHighlight =		{61, 69, 63},	--metal light
-		-- 	BodyColor =			{30, 35, 34},	--metal mid
-		-- 	PlateShadow =		{15, 17, 17},	--metal dark
-		-- },
+
 		{
 			Type = "mech",
 			Name = "InsectMech",
@@ -37,7 +24,7 @@ local function init(self)
 			ResourcePath = "units/player",
 
 			Default =           {  PosX = -18, PosY = -6  },
-			Animated =          {  PosX = -18, PosY = -6 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
+			Animated =          {  PosX = -22, PosY = -3 , NumFrames = 4},  -- 이거가 행거에서 보이는 위치 
 			Broken =            {  PosX = -20, PosY = -6, },
 			Submerged =         { PosX = -26, PosY = 4},
 			SubmergedBroken =   { PosX = -22, PosY = 4 },
@@ -163,7 +150,7 @@ end
 local function load(self,options,version)
 
 	--assert(package.loadlib(self.resourcePath .."/lib/utils.dll", "luaopen_utils"))()
-	modApi:addSquadTrue({"A.rtificial Mechs","narD_LaserMech","narD_CorruptedMech","narD_VatMech"},"A.rtificial Mechs","A.C.I.D. Bonus : ??? ",self.resourcePath.."/icon.png")
+	modApi:addSquadTrue({"A.rtificial Mechs","narD_LaserMech","narD_CorruptedMech","narD_VatMech"},"A.rtificial Mechs","If the Mech is affected by A.C.I.D., cleanse it and deal double damage",self.resourcePath.."/icon.png")
 -- Name Brainstorming.
 -- {Corrupted Plague, Living Plague, Corrupted Blodd, ... }
 
@@ -182,5 +169,5 @@ return {
 	requirements = {},
 	init = init,
 	load = load,
-	description = "Team A.C.I.D. "  
+	description = "If the Mech is affected by A.C.I.D., cleanse it and deal double damage"  
 }
