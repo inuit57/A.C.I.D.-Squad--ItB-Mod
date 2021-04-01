@@ -170,7 +170,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 end
 
 narD_PullBeam_A = narD_PullBeam:new{ --
-	UpgradeDescription = "Applying A.C.I.D. to units.",
+	UpgradeDescription =  "Applying A.C.I.D. to the hit targets.",
 	ACID = 1,
 }
 
