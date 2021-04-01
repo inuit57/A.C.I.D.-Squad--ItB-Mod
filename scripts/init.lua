@@ -165,7 +165,7 @@ end
 return {
 	id = "narD_ACID_Squad", 
 	name = "A.rtificial Mechs", 
-	version = "1.0.0", 
+	version = "1.0.3", 
 	requirements = {},
 	init = init,
 	load = load,
