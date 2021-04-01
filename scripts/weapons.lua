@@ -85,11 +85,11 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 				
 	end
 	
-	if self.BackACID then
-		local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
-		backDamage.iAcid = 1
-		ret:AddDamage(backDamage) 
-	end
+	-- if self.BackACID then
+	-- 	local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
+	-- 	backDamage.iAcid = 1
+	-- 	ret:AddDamage(backDamage) 
+	-- end
 	
 	local curr = targets[1]
 	local damage 
@@ -114,9 +114,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
 		if Board:IsPawnSpace(curr) then
 			ret:AddDelay(0.1)
-			-- damage.iAcid = self.ACID
+			damage.iAcid = self.ACID
 		end
-		damage.iAcid = self.ACID
+		--damage.iAcid = self.ACID
 		ret:AddDamage(damage)
 	end
 
@@ -130,14 +130,14 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 			if Board:IsPawnSpace(curr) then
 				ret:AddDelay(0.1)
 				
-				--damage.iAcid = self.ACID
+				damage.iAcid = self.ACID
 			end
 
 			if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
 				damage.iDamage = 0 
 			end
 			
-			damage.iAcid = self.ACID
+			--damage.iAcid = self.ACID
 			ret:AddDamage(damage)
 
 			-- temp_dmg = temp_dmg - 1 
@@ -170,7 +170,7 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 end
 
 narD_PullBeam_A = narD_PullBeam:new{ --
-	UpgradeDescription = "Applying A.C.I.D. to a line.",
+	UpgradeDescription =  "Applying A.C.I.D. to the hit targets.",
 	ACID = 1,
 }
 
