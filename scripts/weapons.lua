@@ -465,10 +465,14 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		end
 
 		damage.sAnimation = "airpush_"..dir
-		if (dir ~= GetDirection(p1 - p2)) and ((BigSize ~= 0) or (dir ~= GetDirection(p2 - p1))) then
+		if (dir ~= GetDirection(p1 - p2)) and ((self.BigSize ~= 0) or (dir ~= GetDirection(p2 - p1))) then
 		--if (dir ~= GetDirection(p1- p2)) then
 			ret:AddDamage(damage)
 		end
+
+		-- if (self.BigSize ~= 0) and (dir == GetDirection(p2 - p1)) then
+		-- 	ret:AddDamage(damage)
+		-- end
 	end
 	
 	if (Board:GetPawn(p1):IsAcid()) then
