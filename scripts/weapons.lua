@@ -1,7 +1,7 @@
 local wt2 = {	
 
-	narD_Shrapnel_Upgrade1 =  "Building Immune", 
-	narD_Shrapnel_Upgrade2 =  "Ally Immune", 
+	narD_Shrapnel_Upgrade1 =  "+1 Tile",
+	narD_Shrapnel_Upgrade2 =  "Building Immune",  --"Ally Immune", 
 
 	narD_VATthrow_Upgrade1 = "+Back A.C.I.D", 
 	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", 
@@ -394,6 +394,7 @@ narD_Shrapnel = TankDefault:new	{
 	PowerCost = 2,
 	Acid = 1, 
 	
+	BigSize = 0 , 
 	Acid_Damage = 1,
 	FriendlyDamage = true, 
 
@@ -404,7 +405,7 @@ narD_Shrapnel = TankDefault:new	{
 
 	BuildingImmune = false,
 	Upgrades = 2,
-	UpgradeCost = {2, 2},
+	UpgradeCost = {1, 2},
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -464,7 +465,8 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 		end
 
 		damage.sAnimation = "airpush_"..dir
-		if (dir ~= GetDirection(p1 - p2)) and (dir ~= GetDirection(p2 - p1)) then
+		if (dir ~= GetDirection(p1 - p2)) and ((BigSize ~= 0) or (dir ~= GetDirection(p2 - p1))) then
+		--if (dir ~= GetDirection(p1- p2)) then
 			ret:AddDamage(damage)
 		end
 	end
@@ -479,19 +481,22 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 end
 
 narD_Shrapnel_A = narD_Shrapnel:new{
-	UpgradeDescription = "This attack will no longer damage Grid Buildings.",
+	UpgradeDescription = "Push and Damage to additional tile",--"Deals no damage to allies.",
 	-- self_acid = true, 
-	BuildingImmune = true,
+	BigSize = 1, 
 } 
 
 narD_Shrapnel_B = narD_Shrapnel:new{
-	UpgradeDescription = "Deals no damage to allies.",
-	FriendlyDamage = false,
+	UpgradeDescription = "This attack will no longer damage Grid Buildings.",
+	--FriendlyDamage = false,
+	BuildingImmune = true,
+	
 	
 } 
 
 narD_Shrapnel_AB = narD_Shrapnel:new{
 	BuildingImmune = true,
-	FriendlyDamage = false,
+	BigSize = 1, 
+	--FriendlyDamage = false,
 	-- self_acid = true, 
 } 
