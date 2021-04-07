@@ -1,6 +1,5 @@
 <Others>
 * Achievement 
-* Squad Description 
 
 <Weapon>
 
@@ -8,16 +7,4 @@
 * Pawns Image 
 * Squad Icon
 
-
 <BUG> 
-- 레이져 
-: 당기기 먼저 하고 난 다음에
-데미지 판정 들어가도록 수정???
-: 이미지랑 좀 달라보여서 헷갈릴 수 있다. 
-
-- 브루트
-: 가운데 건물 면역 적용안됨
-
-
-<고려>
-- 브루트를 사이보그로?? 
