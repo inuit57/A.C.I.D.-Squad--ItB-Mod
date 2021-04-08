@@ -138,7 +138,7 @@ local function init(self)
 	shop:addWeapon({
 		id = "narD_Shrapnel",
 		name = narD_Shrapnel.Name,
-		desc = "Adds narD_Shrapnel to the store."
+		desc = "Adds A.C.I.D. Shrapnel to the store."
 	})
 end
 
@@ -153,12 +153,7 @@ local function load(self,options,version)
 	modApi:addSquadTrue({"A.rtificial Mechs","narD_LaserMech","narD_CorruptedMech","narD_VatMech"},"A.rtificial Mechs","If the Mech is affected by A.C.I.D., cleanse it and deal double damage",self.resourcePath.."/icon.png")
 	require(self.scriptPath .."shop"):load(options)
 
-	-- Name Brainstorming.
--- {Corrupted Plague, Living Plague, Corrupted Blodd, ... }
 
---modApi:addNextTurnHook(function()
-	--DelayHeal:DelayRepair()
---end)
 
 end
 
