@@ -4,7 +4,7 @@ local wt2 = {
 	narD_Shrapnel_Upgrade2 =  "Building Immune",  --"Ally Immune", 
 
 	narD_VATthrow_Upgrade1 = "+1 Damage",--"+Back A.C.I.D", 
-	narD_VATthrow_Upgrade2 = "+Side A.C.I.D", 
+	--narD_VATthrow_Upgrade2 = "+Side A.C.I.D", 
 
 	narD_PullBeam_Upgrade1 = "+A.C.I.D Tip",
 	narD_PullBeam_Upgrade2 = "+1 Damage",
@@ -46,7 +46,7 @@ narD_PullBeam = LaserDefault:new{
 	ACID = 0,
 
 	Upgrades = 2,
-	UpgradeCost = { 2, 3 },
+	UpgradeCost = { 1, 2 },
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -99,9 +99,9 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 	local check_damage = temp_dmg 
 
 	if (Board:IsPawnSpace(curr) ) and (Board:GetPawn(curr):IsAcid()) then
-		if self.Damage > 2 then
+		-- if self.Damage > 2 then
 			temp_dmg = self.MinDamage
-		end
+		--end
 		
 		check_damage = temp_dmg * 2  
 		
@@ -273,8 +273,8 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	MinDamage = 1, -- for tooltip
 	LaunchSound = "/weapons/boulder_throw",
 	ImpactSound =  "/props/acid_vat_break", --"/impact/dynamic/rock",
-	Upgrades = 2,
-	Push = false,
+	Upgrades = 1, --2
+	--Push = false,
 	
 	self_acid = false, 
 
@@ -286,7 +286,7 @@ narD_VATthrow = ArtilleryDefault:new{-- LineArtillery:new{
 	Acid_Damage = 1,
 	SideACID = 0, 
 	
-	UpgradeCost = {2, 2},
+	UpgradeCost = {2 },-- 2},
 
 	TipImage = {
 		Unit = Point(2,4),
@@ -319,7 +319,8 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 	
 	if acid_Bonus then 
 		damage.iDamage = self.Damage --self.MinDamage + self.Acid_Damage --*2 
-		if self.Damage > 2 and  (Board:IsPawnSpace(p2) ) and Board:GetPawn(p2):IsAcid() then
+		--if self.Damage > 2 and  
+		if (Board:IsPawnSpace(p2) ) and Board:GetPawn(p2):IsAcid() then
 			damage.iDamage = self.MinDamage
 		end
 
@@ -346,21 +347,30 @@ function narD_VATthrow:GetSkillEffect(p1,p2)
 	ret:AddBoardShake(0.15)
 
 
-	local temp_point = p2 + DIR_VECTORS[(dir+1)%4]
-	local damagepush = SpaceDamage(temp_point, 0, (dir+1)%4)
+
+
+	for dir2 = 0,3 do 
+		local temp_point = p2 + DIR_VECTORS[dir2] 
+		local damagepush = SpaceDamage(temp_point, 0 , dir2)
+		damagepush.sAnimation = "airpush_"..(dir2)
+		ret:AddDamage(damagepush)
+	end
+
+	-- local temp_point = p2 + DIR_VECTORS[(dir+1)%4]
+	-- local damagepush = SpaceDamage(temp_point, 0, (dir+1)%4)
 
 	
-	damagepush.sAnimation = "airpush_"..((dir+1)%4)
-	damagepush.iAcid = self.SideACID
-	ret:AddDamage(damagepush) 
+	-- damagepush.sAnimation = "airpush_"..((dir+1)%4)
+	-- damagepush.iAcid = self.SideACID
+	-- ret:AddDamage(damagepush) 
 	
 	
-	temp_point = p2 + DIR_VECTORS[(dir-1)%4]
-	damagepush = SpaceDamage(temp_point, 0, (dir-1)%4)
-	damagepush.iAcid = self.SideACID
+	-- temp_point = p2 + DIR_VECTORS[(dir-1)%4]
+	-- damagepush = SpaceDamage(temp_point, 0, (dir-1)%4)
+	-- damagepush.iAcid = self.SideACID
 
-	damagepush.sAnimation = "airpush_"..((dir-1)%4)
-	ret:AddDamage(damagepush)
+	-- damagepush.sAnimation = "airpush_"..((dir-1)%4)
+	-- ret:AddDamage(damagepush)
 	
 
 	return ret
@@ -375,19 +385,19 @@ narD_VATthrow_A = narD_VATthrow:new{
 
 } 
 
-narD_VATthrow_B = narD_VATthrow:new{
-	UpgradeDescription = "Spray additional A.C.I.D. on adjacent tiles.",
+-- narD_VATthrow_B = narD_VATthrow:new{
+-- 	UpgradeDescription = "Spray additional A.C.I.D. on adjacent tiles.",
 
-	SideACID = 1, 
-} 
+-- 	SideACID = 1, 
+-- } 
 
-narD_VATthrow_AB = narD_VATthrow:new{
-	--BackACID = true,
-	MinDamage = 2, 
-	Damage = 4, 
+-- narD_VATthrow_AB = narD_VATthrow:new{
+-- 	--BackACID = true,
+-- 	MinDamage = 2, 
+-- 	Damage = 4, 
 
-	SideACID = 1, 
-} 
+-- 	SideACID = 1, 
+-- } 
 
 narD_Shrapnel = TankDefault:new	{
 
@@ -415,7 +425,7 @@ narD_Shrapnel = TankDefault:new	{
 
 	BuildingImmune = false,
 	Upgrades = 2,
-	UpgradeCost = {1, 2},
+	UpgradeCost = {2, 2},
 
 	TipImage = {
 		Unit = Point(2,3),
@@ -436,7 +446,8 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 
 	if Board:GetPawn(p1):IsAcid() then
 		damage.iDamage = self.Damage --self.MinDamage + self.Acid_Damage --*2 
-		if self.Damage > 2 and (Board:IsPawnSpace(target) ) and  Board:GetPawn(target):IsAcid() then
+		--if self.Damage > 2 and 
+		if (Board:IsPawnSpace(target) ) and  Board:GetPawn(target):IsAcid() then
 			damage.iDamage = self.MinDamage
 		end
 	end
@@ -462,7 +473,8 @@ function narD_Shrapnel:GetSkillEffect(p1,p2)
 
 		if Board:GetPawn(p1):IsAcid() then
 			damage.iDamage = self.Damage --self.MinDamage + self.Acid_Damage --*2 
-			if self.Damage > 2 and  (Board:IsPawnSpace(target2) ) and  Board:GetPawn(target2):IsAcid() then
+			--if self.Damage > 2 and 
+			if (Board:IsPawnSpace(target2) ) and  Board:GetPawn(target2):IsAcid() then
 				damage.iDamage = self.MinDamage
 			end
 		end
