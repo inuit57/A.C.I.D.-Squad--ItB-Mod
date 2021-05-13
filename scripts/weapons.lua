@@ -24,7 +24,8 @@ end
 narD_PullBeam = LaserDefault:new{
 	Name = "Pull Beam",
 	Class = "Prime",
-	Description = "Pull all units in a line, damaging adjacent.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage",
+	Description = "Pull all units in a line, damaging last target.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage",
+	-- Description = "Pull all units in a line, damaging adjacent.\nIf the Mech is affected by A.C.I.D., cleanse it and deal double damage",
 	Icon = "weapons/acid_laser.png",
 	LaserArt = "effects/laser_acid", --"effects/laser_push", -- --laser_fire
 	Explosion = "", -- "ExploFirefly2",
@@ -69,9 +70,20 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 		targets[#targets+1] = curr
 		curr = curr + DIR_VECTORS[dir]
 	end
-	targets[#targets+1] = curr 
+	-- 내가 원하는 것은 마지막이 유닛이었으면 한다는 것이고. 
+	-- targets[#targets+1] = curr --마지막 지점을 넣어주는구나 이게 . 
 	
-	local dam = SpaceDamage(curr, 0) -- for effect 
+	-- 마지막 pawn의 위치를 curr에 저장한다. 
+	while not Board:IsPawnSpace(curr) do
+		curr = curr - DIR_VECTORS[dir]
+	end
+
+	if(curr == p1) then
+		curr = p2
+	end
+
+	local dam = SpaceDamage(curr, 0 ) -- for effect 
+	dam.iAcid = 1
 		
 	local temp_dmg = self.MinDamage	
 	--local min_dmg = self.MinDamage
@@ -80,95 +92,83 @@ function narD_PullBeam:GetSkillEffect(p1,p2)
 
 	if acid_Bonus then 
 		temp_dmg = self.Damage 
-		
+
+		dam.iDamage = self.Damage
 		ret:AddProjectile(dam,"effects/laser_acid")
 	else
+		dam.iDamage = self.MinDamage
 		ret:AddProjectile(dam,"effects/m_laser_acid") -- "effects/laser_acid"
 				
 	end
 	
-	-- if self.BackACID then
-	-- 	local backDamage = SpaceDamage(p1 - DIR_VECTORS[dir] , 0)
-	-- 	backDamage.iAcid = 1
-	-- 	ret:AddDamage(backDamage) 
-	-- end
 	
-	local curr = targets[1]
+	--local curr = targets[1]
 	local damage 
 	local flag = false
 	local check_damage = temp_dmg 
 
-	if (Board:IsPawnSpace(curr) ) and (Board:GetPawn(curr):IsAcid()) then
-		-- if self.Damage > 2 then
-			temp_dmg = self.MinDamage
-		--end
+	-- if (Board:IsPawnSpace(curr) ) and (Board:GetPawn(curr):IsAcid()) then
+	-- 	-- if self.Damage > 2 then
+	-- 		temp_dmg = self.MinDamage
+	-- 	--end
 		
-		check_damage = temp_dmg * 2  
+	-- 	check_damage = temp_dmg * 2  
 		
-	end
+	-- end
 	
-	if Board:IsPawnSpace(curr) then
+	-- if Board:IsPawnSpace(curr) then
 
-		if (Board:GetPawn(curr):GetHealth() <= (check_damage + 1) )  and 
-		 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
-		 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
-			flag = true
-		end
+	-- 	if (Board:GetPawn(curr):GetHealth() <= (check_damage + 1) )  and 
+	-- 	 	(Board:GetPawn(curr):GetType() ~= "narD_ACIDVat" ) and  -- intended bug.  
+	-- 	 	(Board:GetPawn(curr):GetType() ~= "AcidVat" ) then --
+	-- 		flag = true
+	-- 	end
 				
-	end
+	-- end
 
-	if not flag then
-		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+	-- if not flag then
+	-- 	damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+	-- 	if Board:IsPawnSpace(curr) then
+	-- 		ret:AddDelay(0.1)
+	-- 		damage.iAcid = self.ACID
+	-- 	end
+	-- 	--damage.iAcid = self.ACID
+	-- 	ret:AddDamage(damage)
+	-- end
+
+	--if #targets >= 2 then
+	local curr2 
+	for i = 1, #targets do
+		curr2 = targets[i]
+		if(curr2  == curr + DIR_VECTORS[dir]) then 
+			 break 
+		end
+		damage = SpaceDamage(curr2, 0, (dir-2)%4)
+		
 		if Board:IsPawnSpace(curr) then
 			ret:AddDelay(0.1)
+			
 			damage.iAcid = self.ACID
 		end
+		
 		--damage.iAcid = self.ACID
 		ret:AddDamage(damage)
 	end
+	--end
 
-	if #targets >= 2 then
-		for i = 2, #targets do
-			curr = targets[i]
-			damage = SpaceDamage(curr, 0, (dir-2)%4)
-			
-			--damage.iDamage = temp_dmg
-			
-			if Board:IsPawnSpace(curr) then
-				ret:AddDelay(0.1)
-				
-				damage.iAcid = self.ACID
-			end
-
-			if not self.FriendlyDamage and Board:IsPawnTeam(curr,TEAM_PLAYER) then
-				damage.iDamage = 0 
-			end
-			
-			--damage.iAcid = self.ACID
-			ret:AddDamage(damage)
-
-			-- temp_dmg = temp_dmg - 1 
-			-- if temp_dmg < min_dmg then temp_dmg = min_dmg end
-		end
-	end
-
-	if flag then
-		curr = targets[1] 
-		damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
-		ret:AddDelay(0.3)
-		damage.iAcid = self.ACID
-		ret:AddDamage(damage)
-	end 
+	-- if flag then
+	-- 	curr = targets[1] 
+	-- 	damage = SpaceDamage(curr, temp_dmg, (dir-2)%4)
+	-- 	ret:AddDelay(0.3)
+	-- 	damage.iAcid = self.ACID
+	-- 	ret:AddDamage(damage)
+	-- end 
 
 	if acid_Bonus  then 
 		local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
 		selfDamage.iAcid =  EFFECT_REMOVE 
 		selfDamage.sAnimation = "ExploFirefly2"
 		ret:AddDamage(selfDamage)
-	-- elseif self.self_acid then
-	-- 	local selfDamage = SpaceDamage( p1  ,self.SelfDamage) 
-	-- 	selfDamage.iAcid =  1 
-	-- 	ret:AddDamage(selfDamage)
 	end
 
 	
